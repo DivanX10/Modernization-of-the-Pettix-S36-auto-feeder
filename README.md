@@ -51,7 +51,7 @@ wifi:
 
 #Если не будет связи с WiFi, то поднимется точка доступа
   ap:
-    ssid: ESP Сat Tray Hotspot
+    ssid: ESP Cat bowl Hotspot
     password: !secret ap_esp_password
 
 #Компонент captive portal в ESPHome является резервным механизмом на случай сбоя подключения к настроенному Wi-Fi.
