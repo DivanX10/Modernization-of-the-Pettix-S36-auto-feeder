@@ -238,6 +238,11 @@ time:
   <summary><b>3D модель корпуса для весов под миску</b></summary>
   
 
-...
+Готовые модели можно скачать [тут](https://github.com/DivanX10/cat-bowl-with-scales/tree/main/files)
+
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/0c233383-4d06-4839-b33a-e1bf852fab4e)
+
+
+
   
 </details>
