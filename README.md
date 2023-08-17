@@ -384,15 +384,25 @@ group:
       - binary_sensor.scales_cat_bowl_bowl #Наличие миски
       - binary_sensor.scales_cat_bowl_food #Наличие корма
       - number.scales_cat_bowl_set_weight_for_bowl #Указать вес миски
+      - input_number.kitchen_auto_feeder_min_feed_threshold #Минимальный порог корма
       - sensor.scales_cat_bowl_weight #Вес миски
       - sensor.scales_cat_bowl_weight_food #Вес корма
       - sensor.auto_feeder_feed_per_day #Выдано корма в день
       - sensor.auto_feeder_feed_per_week #Выдано корма в неделю
       - sensor.auto_feeder_feed_per_month #Выдано корма в месяц
 
-
-
-
+#Вспомогательный элемент: Число
+#https://www.home-assistant.io/integrations/input_number
+input_number:
+#Автокормушка: Минимальный порог корма
+#Объект: input_number.kitchen_auto_feeder_min_feed_threshold
+  kitchen_auto_feeder_min_feed_threshold:
+    name: "Минимальный порог корма"
+    min: 5
+    max: 30
+    step: 1
+    mode: slider #box
+    icon: mdi:weight-gram
 
 ```
   
