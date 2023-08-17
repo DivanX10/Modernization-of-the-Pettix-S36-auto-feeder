@@ -257,6 +257,8 @@ time:
   <summary><b>Карточка управления автокормушкой</b></summary>
   
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/c761cc49-fe44-45ce-95d7-375ef393cc4a)
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/24ff4dbf-113b-410a-813d-a3d76ea75304)
+
 
 Для работы карточки необходимо установить компоненты
 * [fold-entity-row](https://github.com/thomasloven/lovelace-fold-entity-row)
@@ -387,9 +389,6 @@ group:
       - input_number.kitchen_auto_feeder_min_feed_threshold #Минимальный порог корма
       - sensor.scales_cat_bowl_weight #Вес миски
       - sensor.scales_cat_bowl_weight_food #Вес корма
-      - sensor.auto_feeder_feed_per_day #Выдано корма в день
-      - sensor.auto_feeder_feed_per_week #Выдано корма в неделю
-      - sensor.auto_feeder_feed_per_month #Выдано корма в месяц
 
 #Вспомогательный элемент: Число
 #https://www.home-assistant.io/integrations/input_number
