@@ -389,3 +389,8 @@ group:
 ```
   
 </details>
+
+****
+
+### Смотреть [видео](https://youtu.be/qWqOF85e7Kk)
+
