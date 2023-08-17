@@ -243,6 +243,82 @@ time:
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/0c233383-4d06-4839-b33a-e1bf852fab4e)
 
 
+</details>
+
+<details>
+  <summary><b>Карточка управления автокормушкой</b></summary>
+  
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/c761cc49-fe44-45ce-95d7-375ef393cc4a)
+
+Для работы карточки необходимо установить компоненты
+* [fold-entity-row](https://github.com/thomasloven/lovelace-fold-entity-row)
+* [multiple-entity-row](https://github.com/benct/lovelace-multiple-entity-row)
+
+
+```
+type: entities
+entities:
+  - type: custom:fold-entity-row
+    head:
+      entity: sensor.kukhnia_avto_kormushka_statusy
+      name: Миска
+      icon: mdi:cat
+      secondary_info:
+        attribute: Вес корма
+        name: Корм
+        unit: g
+      type: custom:multiple-entity-row
+      show_state: false
+      state_header: Статус
+      entities:
+        - entity: group.kitchen_auto_feeder_info_and_menu
+          name: Меню
+          state_color: true
+          icon: mdi:information-outline
+          styles:
+            height: 60px
+            width: 50px
+        - entity: switch.slow_feed
+          name: Slow Feed
+          type: button
+          state_color: true
+          icon: mdi:speedometer-slow
+          tap_action:
+            action: toggle
+          styles:
+            height: 60px
+            width: 50px
+        - entity: input_boolean.smartfeeder_pour_the_feed_automatically
+          name: Auto Feed
+          type: button
+          state_color: true
+          icon: mdi:auto-mode
+          tap_action:
+            action: toggle
+          styles:
+            height: 60px
+            width: 50px
+        - entity: number.manual_feed
+          name: Feed
+          type: button
+          state_color: true
+          styles:
+            height: 60px
+            width: 50px
+    entities:
+      - entity: input_button.smartfeeder_pour_cat_food
+        name: Насыпать кошкам корм
+        secondary_info: last-changed
+      - entity: number.manual_feed
+        name: Насыпать корм
+      - entity: switch.slow_feed
+      - entity: input_boolean.smartfeeder_pour_the_feed_automatically
+        name: Автокормежка
+      - entity: input_number.smartfeeder_serving_quantity
+        name: Количество порции
+title: Автокормушка
+
+```
 
   
 </details>
