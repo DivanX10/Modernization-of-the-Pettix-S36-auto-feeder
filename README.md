@@ -322,3 +322,70 @@ title: Автокормушка
 
   
 </details>
+
+
+<details>
+  <summary><b>Шаблоны: сенсоры, выключатели, группы</b></summary>
+  
+
+```
+#Используем сенсоры нового образца от 2023
+#Документация https://www.home-assistant.io/integrations/template/
+#Это пример нового образца шаблонов
+#template:
+#  - sensor:
+#      ...
+#  - binary_sensor:
+
+
+template:
+#Кухня: Авто кормушка. Статусы
+#Объект: sensor.kukhnia_avto_kormushka_statusy
+  - sensor:
+      - name: 'Кухня: Автокормушка. Статусы'
+        unique_id: kitchen auto feeder status
+        icon: mdi:cat
+        state: '{{ states("input_boolean.smartfeeder_pour_the_feed_automatically") }}'
+        attributes:
+          Вес миски: '{{ states("sensor.scales_cat_bowl_weight") }}'
+          Вес корма: '{{ states("sensor.scales_cat_bowl_weight_food") }}'
+          Наличие миски: '{{ states("binary_sensor.scales_cat_bowl_bowl") }}'
+          Наличие корма: '{{ states("binary_sensor.scales_cat_bowl_food") }}'
+
+
+#Вспомогательный элемент: Input Boolean
+#https://www.home-assistant.io/integrations/input_boolean/
+input_boolean:
+#Автокормушка: Сыпать корм автоматически
+#Объект: input_boolean.smartfeeder_pour_the_feed_automatically
+  smartfeeder_pour_the_feed_automatically:
+    name: "Автокормушка: Сыпать корм автоматически"
+    icon: mdi:cat
+
+#Группы
+#https://www.home-assistant.io/integrations/group/
+group:
+#Автокормушка: Инфо и меню
+#Объект: group.kitchen_auto_feeder_info_and_menu
+  kitchen_auto_feeder_info_and_menu:
+    name: "Автокормушка: Инфо и меню"
+    icon: mdi:information-outline
+    all: false
+    entities:
+      - button.scales_cat_bowl_restart #Перезагрузить
+      - binary_sensor.scales_cat_bowl_bowl #Наличие миски
+      - binary_sensor.scales_cat_bowl_food #Наличие корма
+      - number.scales_cat_bowl_set_weight_for_bowl #Указать вес миски
+      - sensor.scales_cat_bowl_weight #Вес миски
+      - sensor.scales_cat_bowl_weight_food #Вес корма
+      - sensor.auto_feeder_feed_per_day #Выдано корма в день
+      - sensor.auto_feeder_feed_per_week #Выдано корма в неделю
+      - sensor.auto_feeder_feed_per_month #Выдано корма в месяц
+
+
+
+
+
+```
+  
+</details>
