@@ -35,9 +35,10 @@
 
 <details>
   <summary><b>Код для ESPHome</b></summary>
-  
-Перед тем как использовать весь код, откалибруйте свои весы. Уберите из кода эти строчки и включите журналирование в режиме DEBUG. Так мы будем получать сырые данные. Зафиксируйте вес без груза, скопируйте цифры с логов как есть, потом возъмите груз на 500 грамм и поставьте на весы, зафиксируйте цифры. Все эти цифры запишите в линейный фильтр
 
+### Полный код можно посмотреть [здесь](https://github.com/DivanX10/cat-bowl-with-scales/blob/main/config/scales-cat-bowl.yaml)
+***  
+Перед тем как использовать весь код, откалибруйте свои весы. Уберите из кода эти строчки и включите журналирование в режиме DEBUG. Так мы будем получать сырые данные. Зафиксируйте вес без груза, скопируйте цифры с логов как есть, потом возъмите груз на 500 грамм и поставьте на весы, зафиксируйте цифры. Все эти цифры запишите в линейный фильтр
 
 Пример фильтра, где `-169085` это сырое значение и это значение без груза на весах, поэтому я указал что данное значение имеет вес 0 грамм, а значение `-92230` отобразилось в логах после того, как я установил груз весом 500 грамм и после указал, что данное значение имеет вес 500 грамм
 ```
@@ -71,216 +72,16 @@ sensor:
     internal: False
 ```
 
+Если показания нестабильны и сильно скачут, то можно использовать дополнительный фильтр, например медиана, что уменьшит частое изменение показании. [Подробнее читаем в документации ESPHome](https://esphome.io/components/sensor/index.html#median)
 
-Код после калибровки весов. Укажите свои значения в фильтре с линейной калибровкой
 ```
-substitutions:
-  board_name: Scales for a cat bowl
-  node_name: scales-cat-bowl
-
-esphome:
-  name: ${node_name}
-  comment: WeMos D1 Scales for a cat bowl
-
-esp8266:
-  board: d1_mini
-  framework:
-    version: recommended
-
-#Учетные данные Wi-Fi для подключения платы к домашней сети
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-  fast_connect: off
-  reboot_timeout: 5min
-
-#Если не будет связи с WiFi, то поднимется точка доступа
-  ap:
-    ssid: ESP Cat bowl Hotspot
-    password: !secret ap_esp_password
-
-#Компонент captive portal в ESPHome является резервным механизмом на случай сбоя подключения к настроенному Wi-Fi.
-captive_portal:
-
-#Веб сервер
-web_server:
-  port: 80
-
-#Журналирование
-logger:
-  level: ERROR #Выводим в лог при наличии ошибок
-
-#Enable OTA
-ota:
-  password: "esphome"
-
-#Enable Home Assistant API
-#Шифрование выключил для снижения нагрузки на ESP
-api:
-
-#####################################################################################
-################################## Сенсор ###########################################
-sensor:
-  # Весы кошачьей миски
-  - platform: hx711
-    name: "${node_name} Weight"
-    icon: mdi:scale
-    id: idWeight
-    dout_pin: D7 # DT
-    clk_pin: D6  # SCK
-    gain: 64
-    update_interval: 2s
-    unit_of_measurement: g
-    accuracy_decimals: 0
-    device_class: weight
-    state_class: measurement
-    entity_category: diagnostic
-    internal: False
-    filters:
-      - calibrate_linear:
-          - -169085 -> 0 #Укажите свои значения в фильтре с линейной калибровкой
-          - -92230 -> 500 #Укажите свои значения в фильтре с линейной калибровкой
-      - delta: 2
-      #Если миска извлечена, то вес корма будет 0
-      - lambda: !lambda |-
-          if (x < 0) return 0;
-          return x;
-    on_value:
-      then:
-      - if:
-          condition:
-              #Если вес миски ниже 20, значит миски нет
-              - lambda: 'return id(idWeight).state < 20;'
-          then:
-              #Опубликовать статус OFF
-              - binary_sensor.template.publish:
-                  id: idBowl
-                  state: OFF
-      - if:
-          condition:
-              #Если вес миски выше 60, значит миска на месте
-              - lambda: 'return id(idWeight).state > 60;' 
-          then:
-              #Опубликовать статус ON
-              - binary_sensor.template.publish:
-                  id: idBowl
-                  state: ON
-      - if:
-          condition:
-              #Если вес миски ниже 99, значит корма в миске нет
-              - lambda: 'return id(idWeight).state < 99;' 
-          then:
-              #Опубликовать статус OFF
-              - binary_sensor.template.publish:
-                  id: idFood
-                  state: OFF
-      - if:
-          condition:
-              #Если вес миски выше 99, значит корм в миске есть
-              - lambda: 'return id(idWeight).state > 99;' 
-          then:
-              #Опубликовать статус ON
-              - binary_sensor.template.publish:
-                  id: idFood
-                  state: ON
-
-  - platform: template
-    name: "${node_name} Weight Food"
-    id: idWeightFood
-    update_interval: 2s
-    unit_of_measurement: g
-    accuracy_decimals: 0
-    device_class: weight
-    state_class: measurement
-    icon: mdi:weight-gram
-    lambda: 'return id(idWeight).state - id(idSetWeightBowl).state;' #Вычитаем вес миски и получаем вес корма
-    filters:
-        #Если миска извлечена, то вес корма будет 0
-        - lambda: !lambda |-
-            if (x < 0) return 0;
-            return x;
-
-#Сенсор уровня сигнала WiFi
-  - platform: wifi_signal
-    name: ${node_name} RSSI WiFi
-    icon: mdi:wifi
-    update_interval: 60s
-
-#Скрытый сенсор безотказной работы в секундах
-  - platform: uptime
-    name: "${node_name} Uptime sec"
-    icon: mdi:clock-outline
-    id: uptime_sensor
-    internal: False #Скрыть - true \показать - false
-
-
-#####################################################################################
-################################## Бинарный сенсор ##################################
-binary_sensor:
-#Наличие миски
-  - platform: template
-    name: "${node_name} Bowl"
-    icon: mdi:bowl
-    id: idBowl
-    internal: false #Скрыть - true \показать - false
-
-#Наличие корма в миске
-  - platform: template
-    name: "${node_name} Food"
-    icon: mdi:bowl
-    id: idFood
-    internal: false #Скрыть - true \показать - false
-
-
-#####################################################################################
-################################### Текстовый сенсор ################################
-#Время безотказной работы
-text_sensor:
-  - platform: wifi_info
-    ip_address:
-      name: ${node_name} IP
-#    ssid:
-#      name: ${board_name} SSID
-#    bssid:
-#      name: ${board_name} BSSID
-#    mac_address:
-#      name: ${board_name} Mac
-#    scan_results:
-#      name: ${board_name} Latest_Scan_Results
-
-
-#####################################################################################
-####################################### Число #######################################
-#Ползунок для управления сервоприводом
-#Указать вес для миски
-number:
-  - platform: template
-    name: "${node_name} Set weight for bowl"
-    id: idSetWeightBowl
-    min_value: 70
-    max_value: 100
-    step: 1
-    mode: slider #slider/box
-    optimistic: true
-    restore_value: true
-
-
-#####################################################################################
-####################################### Кнопка ######################################
-button:
-  - platform: restart
-    name: "${node_name} Restart"
-    icon: mdi:restart
-
-
-#####################################################################################
-####################################### Время #######################################
-time:
-  - platform: sntp
-    id: sntp_time
-    timezone: Europe/Moscow
+      - median:
+          window_size: 7
+          send_every: 5
+          send_first_at: 4
 ```
-  
+
+
 </details>
 
 <details>
