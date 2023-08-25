@@ -15,6 +15,16 @@
 ***
 
 <details>
+  <summary><b>Фотографии</b></summary>
+  
+
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/f5922b16-2881-4e63-9c3f-eff8ddc1fa62)
+
+  
+</details>
+
+
+<details>
   <summary><b>Схема подключения и сборка</b></summary>
 
 
