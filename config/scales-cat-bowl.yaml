@@ -50,8 +50,8 @@ sensor:
     name: "${node_name} Weight"
     icon: mdi:scale
     id: idWeight
-    dout_pin: D7 # DT зеленый провод
-    clk_pin: D6  # SCK белый провод
+    dout_pin: D7 # DT
+    clk_pin: D6  # SCK
     gain: 64
     update_interval: 1s
     unit_of_measurement: g
