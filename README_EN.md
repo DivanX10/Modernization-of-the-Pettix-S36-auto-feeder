@@ -97,7 +97,7 @@ If the readings are unstable and jump a lot, then you can use an additional filt
 
 The platform was designed in the FreeCAD program. Download FreeCAD [here](https://www.freecad.org/?lang=ru). I have attached 3 files, two STL files and one for FreeCAD, where you can edit if necessary. I designed the load cells to hold tight and made clips in the form of an arc, which is why the load cells hardly fall into place, you need to pry with a thin flat screwdriver, but they stand clearly and it will be very difficult to dismantle them without damaging the case.
 
-Ready-made models can be downloaded [тут](https://github.com/DivanX10/cat-bowl-with-scales/tree/main/files)
+Ready-made models can be downloaded [here](https://github.com/DivanX10/cat-bowl-with-scales/tree/main/files)
 
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/0c233383-4d06-4839-b33a-e1bf852fab4e)
 
