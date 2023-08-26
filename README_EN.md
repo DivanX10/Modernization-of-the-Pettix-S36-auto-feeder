@@ -44,7 +44,7 @@
 <details>
   <summary><b>Code for ESPHome</b></summary>
 
-### The full code can be viewed [here](https://github.com/DivanX10/cat-bowl-with-scales/blob/main/config/scales-cat-bowl.yaml)
+### The full code can be viewed [here](https://github.com/DivanX10/cat-bowl-with-scales/tree/main/config)
 ***
 Before using all the code, calibrate your scales. Remove these lines from the code and enable logging in DEBUG mode. This way we will get raw data. Fix the weight without the load, copy the numbers from the logs as is, then take the load for 500 grams and put it on the scales, fix the numbers. Write all these numbers into a linear filter
 
