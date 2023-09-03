@@ -479,7 +479,7 @@ globals:
   - id: idSavedSwitch24Hours
     type: bool
     restore_value: yes
-    initial_value: 'true'
+    initial_value: 'false'
 
 
 #####################################################################################
