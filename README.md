@@ -279,7 +279,7 @@ input_number:
 
   > Используйте платы ESP8266 и ESP32 на свое усмотрение, я использовал ESP32 по той причине, что оно у меня было свободным
  
-Выпаиваем чип WBR2 и подключаем ESP
+Выпаиваем чип WBR2 и подключаем ESP. [WBR2 Module Datasheet](https://developer.tuya.com/en/docs/iot/wbr2-datasheet?id=K989h4vonmsey)
 
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/c1ad69c7-c963-4932-bf9b-0d4a6b19d0ea)
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/533b0f16-4dcd-42ce-8f7d-36d0fdd44692)
@@ -349,7 +349,7 @@ input_number:
 
 ***
 
-**Длительность воспроизведения речи**
+**Время воспроизведения голоса**
 
 0
 ```
@@ -626,7 +626,7 @@ number:
     optimistic: true
     restore_value: true
 
-#Продолжительность записи речи
+#Время воспроизведения голоса
   - platform: template
     name: "Voice Times"
     id: idVoiceTimes
@@ -1034,7 +1034,7 @@ number:
     optimistic: true
     restore_value: true
 
-#Продолжительность записи речи
+#Время воспроизведения голоса
   - platform: template
     name: "Voice Times"
     id: idVoiceTimes
