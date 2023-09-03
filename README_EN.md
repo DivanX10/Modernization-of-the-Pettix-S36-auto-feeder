@@ -2,7 +2,11 @@
 
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/680f93cf-808a-4fb4-938e-c62c3f006a86)
 
+***
 
+### Watch [video](https://youtu.be/qWqOF85e7Kk)
+
+***
 
 ### What you need to assemble the scales for the bowl:
 * Sensitive load cells with an accuracy of 1 gram. You can find it in electronic kitchen scales with round legs. We take any kitchen scales with round legs, not with sticks. This can be easily understood if you flip the scales.
@@ -260,4 +264,829 @@ input_number:
 
 ***
 
-### Watch [video](https://youtu.be/qWqOF85e7Kk)
+### We untie the feeder from the Tuya cloud and transfer it to ESPHome
+
+
+<details>
+  <summary><b>Connect the ESP to the feeder</b></summary>
+
+  > Use the ESP8266 and ESP32 boards at your discretion, I used ESP32 for the reason that I had it free
+ 
+We solder the WBR2 chip and connect the ESP. [WBR2 Module Datasheet](https://developer.tuya.com/en/docs/iot/wbr2-datasheet?id=K989h4vonmsey)
+
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/c1ad69c7-c963-4932-bf9b-0d4a6b19d0ea)
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/533b0f16-4dcd-42ce-8f7d-36d0fdd44692)
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/ae929434-ed82-4fbf-bc39-5bfa4d290a13)
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/87fc1946-cf70-4b3f-ae72-8fb07e55289a)
+  
+</details>
+
+<details>
+  <summary><b>Decoding the protocol for controlling the feeder</b></summary>
+
+> Note. At the moment, the sensors are not working yet due to the absence of this feeder in the TuyaMCU component for ESPHome. In Tasmota, this feeder is available in the TuyaMCU component and the sensors work there. Perhaps in the future they will add a feeder to the TuyaMCU component for ESPHome. Follow issues [here](https://github.com/esphome/issues/issues/4844)
+  
+**Turn on the slow feed feed**
+```
+55:AA:00:06:00:05:06:01:00:01:01:13
+```
+
+**Turn off the slow feed feed**
+```
+55:AA:00:06:00:05:06:01:00:01:00:12
+```
+***
+
+**Enable 24 hours**
+```
+55:AA:00:06:00:05:66:01:00:01:01:73
+```
+
+**Turn off 24 hours**
+```
+55:AA:00:06:00:05:66:01:00:01:00:72
+```
+***
+
+**Feed serving**
+
+1 serving of feed
+```
+55:AA:00:06:00:08:03:02:00:04:00:00:00:01:17
+```
+
+2 servings of feed
+```
+55:AA:00:06:00:08:03:02:00:04:00:00:00:02:18
+```
+
+3 servings of feed
+```
+55:AA:00:06:00:08:03:02:00:04:00:00:00:03:19
+```
+
+4 servings of feed
+```
+55:AA:00:06:00:08:03:02:00:04:00:00:00:04:1A
+```
+
+5 servings of feed
+```
+55:AA:00:06:00:08:03:02:00:04:00:00:00:05:1B
+```
+
+6 servings of feed
+```
+55:AA:00:06:00:08:03:02:00:04:00:00:00:06:1C
+```
+
+***
+
+**Voice playback time**
+
+0
+```
+55:AA:00:06:00:08:12:02:00:04:00:00:00:00:25
+```
+
+1
+```
+55:AA:00:06:00:08:12:02:00:04:00:00:00:01:26
+```
+
+2
+```
+55:AA:00:06:00:08:12:02:00:04:00:00:00:02:27
+```
+
+3
+```
+55:AA:00:06:00:08:12:02:00:04:00:00:00:03:28
+```
+
+4
+```
+55:AA:00:06:00:08:12:02:00:04:00:00:00:04:29
+```
+
+5
+```
+55:AA:00:06:00:08:12:02:00:04:00:00:00:05:2A
+```
+
+6
+```
+55:AA:00:06:00:08:12:02:00:04:00:00:00:06:2B
+```
+
+***
+
+**Sensor for the presence of feed in the tank**
+
+There is food in the container
+```
+55:AA:03:07:00:05:0E:05:00:01:00:22
+```
+
+The container has run out of food
+```
+55:AA:03:07:00:05:0E:05:00:01:01:23
+```
+
+</details>
+
+<details>
+  <summary><b>Code for ESPHome</b></summary>
+
+I posted two versions of the code, one only for controlling the feeder, and the second code where the feeder and the bowl with scales will be controlled
+
+<details>
+  <summary>Control of the feeder only</summary>
+  
+
+```
+substitutions:
+  board_name: ESP Feeder S36 Tuya
+  node_name: feeder-s36-tuya
+
+esphome:
+  name: feeder-s36-tuya
+  friendly_name: feeder-s36-tuya
+  comment: ESP Feeder S36 Tuya
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+#Wi-Fi credentials for connecting the board to the home network
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  fast_connect: off
+  reboot_timeout: 5min
+
+#If there is no connection with WiFi, then the access point will rise
+  ap:
+    ssid: ESP Feeder S36 Tuya
+    password: !secret ap_esp_password
+
+#The captive portal component in ESPHome is a backup mechanism in case of a connection failure to the configured Wi-Fi
+captive_portal:
+
+#Web server
+web_server:
+  port: 80
+
+#Enable logging
+logger:
+  level: ERROR
+  baud_rate: 0
+
+#Enable Home Assistant API
+api:
+
+#Enable OTA
+ota:
+  password: "esphome"
+
+
+#####################################################################################
+######################################### UART ######################################
+uart:
+  tx_pin: GPIO1
+  rx_pin: GPIO3
+  baud_rate: 9600
+  stop_bits: 1
+  data_bits: 8
+  parity: NONE
+
+#Enable the TuyaMCU component
+tuya:
+  time_id: sntp_time
+
+
+#####################################################################################
+############################## Global variables #####################################
+globals:
+#Status of the Slow Feed switch
+  - id: idSavedSwitchSlowFeed
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+
+#Switch Status 24 Hours
+  - id: idSavedSwitch24Hours
+    type: bool
+    restore_value: yes
+    initial_value: 'true'
+
+
+#####################################################################################
+##################################### switch ########################################
+switch:
+#Slow feed feed
+  - platform: template
+    name: "Slow Feed"
+    icon: mdi:speedometer-slow
+    optimistic: true
+    lambda: !lambda 'return id(idSavedSwitchSlowFeed);'
+    turn_on_action:
+      - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x05, 0x06, 0x01, 0x00, 0x01, 0x01, 0x13]
+    turn_off_action:
+      - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x05, 0x06, 0x01, 0x00, 0x01, 0x00, 0x12]
+
+#Enable the display on the clock 24 hour time format
+  - platform: template
+    name: "24 Hours"
+    icon: mdi:hours-24
+    optimistic: true
+    lambda: !lambda 'return id(idSavedSwitch24Hours);'
+    turn_on_action:
+      - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x05, 0x66, 0x01, 0x00, 0x01, 0x01, 0x73]
+    turn_off_action:
+      - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x05, 0x66, 0x01, 0x00, 0x01, 0x00, 0x72]
+
+
+#####################################################################################
+################################## Sensor ###########################################
+sensor:
+#WiFi Signal Strength Sensor
+  - platform: wifi_signal
+    name: "RSSI WiFi"
+    icon: mdi:wifi
+    update_interval: 60s
+
+#Hidden sensor uptime in seconds
+  - platform: uptime
+    name: "Uptime sec"
+    icon: mdi:clock-outline
+    id: uptime_sensor
+    internal: True #Hide - true \show - false
+    update_interval: 60s
+    on_raw_value:
+      then:
+        - text_sensor.template.publish:
+            id: uptime_esp
+            state: !lambda |-
+              int seconds = round(id(uptime_sensor).raw_state);
+              int days = seconds / (24 * 3600);
+              seconds = seconds % (24 * 3600);
+              int hours = seconds / 3600;
+              seconds = seconds % 3600;
+              int minutes = seconds /  60;
+              seconds = seconds % 60;
+              return (
+                (days ? String(days) + "d " : "") +
+                (hours ? String(hours) + "h " : "") +
+                (String(minutes) + "m")
+              ).c_str();
+
+
+#####################################################################################
+##################################### Text sensor ###################################
+text_sensor:
+#IP sensor
+  - platform: wifi_info
+    ip_address:
+      name: IP
+
+#ESPHome Version
+  - platform: version
+    name: "ESPHome Version"
+    hide_timestamp: true
+    
+
+#Uptime
+  - platform: template
+    name: "Uptime ESP"
+    icon: mdi:clock-start
+    id: uptime_esp
+    entity_category: diagnostic
+
+
+#####################################################################################
+####################################### Button ######################################
+button:
+#Reboot
+  - platform: restart
+    name: "Restart"
+    icon: mdi:restart
+
+#The feeding button. Gives out portions of feed as much as the amount of feed will be set in the slider
+  - platform: template
+    name: "Feed"
+    icon: mdi:food-drumstick
+    on_press:
+      - if:
+          condition:
+              - lambda: 'return id(idFeedPortions).state == 1;'
+          then:
+              - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x17]
+      - if:
+          condition:
+              - lambda: 'return id(idFeedPortions).state == 2;'
+          then:
+              - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x02, 0x18]
+      - if:
+          condition:
+              - lambda: 'return id(idFeedPortions).state == 3;'
+          then:
+              - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x03, 0x19]
+      - if:
+          condition:
+              - lambda: 'return id(idFeedPortions).state == 4;'
+          then:
+              - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x1A]
+      - if:
+          condition:
+              - lambda: 'return id(idFeedPortions).state == 5;'
+          then:
+              - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x05, 0x1B]
+      - if:
+          condition:
+              - lambda: 'return id(idFeedPortions).state == 6;'
+          then:
+              - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x06, 0x1C]
+
+
+#####################################################################################
+###################################### Number #######################################
+number:
+#We set the amount of feed served
+  - platform: template
+    name: "Feed Portions"
+    icon: mdi:wall-sconce-round-variant
+    id: idFeedPortions
+    min_value: 1
+    max_value: 6
+    step: 1
+    mode: slider #slider/box
+    optimistic: true
+    restore_value: true
+
+#Voice playback time
+  - platform: template
+    name: "Voice Times"
+    id: idVoiceTimes
+    min_value: 1
+    max_value: 6
+    step: 1
+    mode: slider #slider/box
+    optimistic: true
+    restore_value: true
+    on_value:
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 0;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x25]
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 1;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x26]
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 2;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x02, 0x27]
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 3;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x03, 0x28]
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 4;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x29]
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 5;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x05, 0x2A]
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 6;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x06, 0x2B]
+
+
+#####################################################################################
+######################################## Time #######################################
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: Europe/Moscow
+
+```
+  
+</details>
+
+<details>
+  <summary>Control of the feeder and the bowl with scales</summary>
+  
+
+```
+substitutions:
+  board_name: ESP Feeder S36 Tuya
+  node_name: feeder-s36-tuya
+
+esphome:
+  name: feeder-s36-tuya
+  friendly_name: feeder-s36-tuya
+  comment: ESP Feeder S36 Tuya
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+#Wi-Fi credentials for connecting the board to the home network
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  fast_connect: off
+  reboot_timeout: 5min
+
+#If there is no connection with WiFi, then the access point will rise
+  ap:
+    ssid: ESP Feeder S36 Tuya
+    password: !secret ap_esp_password
+
+#The captive portal component in ESPHome is a backup mechanism in case of a connection failure to the configured Wi-Fi
+captive_portal:
+
+#Web server
+web_server:
+  port: 80
+
+#Enable logging
+logger:
+  level: ERROR
+  baud_rate: 0
+
+#Enable Home Assistant API
+api:
+
+#Enable OTA
+ota:
+  password: "esphome"
+
+#####################################################################################
+######################################### UART ######################################
+uart:
+  tx_pin: GPIO1
+  rx_pin: GPIO3
+  baud_rate: 9600
+  stop_bits: 1
+  data_bits: 8
+  parity: NONE
+
+#Enable the TuyaMCU component
+tuya:
+  time_id: sntp_time
+
+#####################################################################################
+############################## Global variables #####################################
+globals:
+#Status of the Slow Feed switch
+  - id: idSavedSwitchSlowFeed
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+
+#Состояние выключателя 24 Hours
+  - id: idSavedSwitch24Hours
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+
+
+#####################################################################################
+#################################### Switch #########################################
+switch:
+#Slow feed feed
+  - platform: template
+    name: "Slow Feed"
+    icon: mdi:speedometer-slow
+    optimistic: true
+    lambda: !lambda 'return id(idSavedSwitchSlowFeed);'
+    turn_on_action:
+      - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x05, 0x06, 0x01, 0x00, 0x01, 0x01, 0x13]
+    turn_off_action:
+      - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x05, 0x06, 0x01, 0x00, 0x01, 0x00, 0x12]
+
+#Enable the display on the clock 24 hour time format
+  - platform: template
+    name: "24 Hours"
+    icon: mdi:hours-24
+    optimistic: true
+    lambda: !lambda 'return id(idSavedSwitch24Hours);'
+    turn_on_action:
+      - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x05, 0x66, 0x01, 0x00, 0x01, 0x01, 0x73]
+    turn_off_action:
+      - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x05, 0x66, 0x01, 0x00, 0x01, 0x00, 0x72]
+
+
+#####################################################################################
+################################## Sensor ###########################################
+sensor:
+#Total weight sensor
+  - platform: hx711
+    name: "Weight"
+    icon: mdi:scale
+    id: idWeight
+    dout_pin: GPIO15 # DT
+    clk_pin: GPIO16  # SCK
+    gain: 64
+    update_interval: 1s
+    unit_of_measurement: g
+    accuracy_decimals: 0
+    device_class: weight
+    state_class: measurement
+    entity_category: diagnostic
+    internal: False
+    filters:
+      - calibrate_linear:
+          - 56194 -> 0
+          - 127044 -> 500
+      - median:
+          window_size: 7
+          send_every: 5
+          send_first_at: 4
+      #If the bowl is removed, the feed weight will be 0
+      - lambda: !lambda |-
+          if (x < 0) return 0;
+          return x;
+    on_value:
+      then:
+      - if:
+          condition:
+              #If the weight of the bowl is below 20, then there is no bowl
+              - lambda: 'return id(idWeight).state < 20;'
+          then:
+              #Publish the OFF status
+              - binary_sensor.template.publish:
+                  id: idBowl
+                  state: OFF
+      - if:
+          condition:
+              #If the weight of the bowl is above 60, then the bowl is in place
+              - lambda: 'return id(idWeight).state > 60;'
+          then:
+              #Publish the status ON
+              - binary_sensor.template.publish:
+                  id: idBowl
+                  state: ON
+
+#Feed weight sensor in a bowl
+  - platform: template
+    name: "Weight Food"
+    icon: mdi:weight-gram
+    id: idWeightFood
+    update_interval: 1s
+    unit_of_measurement: g
+    accuracy_decimals: 0
+    device_class: weight
+    state_class: measurement
+    lambda: 'return id(idWeight).state - id(idSetWeightBowl).state;' #Subtract the weight of the bowl and get the weight of the feed
+    filters:
+        #If the bowl is removed, the feed weight will be 0
+        - lambda: !lambda |-
+            if (x < 0) return 0;
+            return x;
+        #We use the median filter
+        - median:
+            window_size: 7
+            send_every: 5
+            send_first_at: 4
+    on_value:
+      then:
+      - if:
+          condition:
+              #If the weight of the bowl is below 1, then there is no food in the bowl
+              - lambda: 'return id(idWeightFood).state < 1;'
+          then:
+              #Publish the OFF status
+              - binary_sensor.template.publish:
+                  id: idFood
+                  state: OFF
+      - if:
+          condition:
+              #If the weight of the bowl is higher than 1, then there is food in the bowl
+              - lambda: 'return id(idWeightFood).state > 1;'
+          then:
+              #Publish the status ON
+              - binary_sensor.template.publish:
+                  id: idFood
+                  state: ON
+
+#WiFi Signal Strength Sensor
+  - platform: wifi_signal
+    name: "RSSI WiFi"
+    icon: mdi:wifi
+    update_interval: 60s
+
+#Hidden sensor uptime in seconds
+  - platform: uptime
+    name: "Uptime sec"
+    icon: mdi:clock-outline
+    id: uptime_sensor
+    internal: True #Hide - true \show - false
+    update_interval: 60s
+    on_raw_value:
+      then:
+        - text_sensor.template.publish:
+            id: uptime_esp
+            state: !lambda |-
+              int seconds = round(id(uptime_sensor).raw_state);
+              int days = seconds / (24 * 3600);
+              seconds = seconds % (24 * 3600);
+              int hours = seconds / 3600;
+              seconds = seconds % 3600;
+              int minutes = seconds /  60;
+              seconds = seconds % 60;
+              return (
+                (days ? String(days) + "d " : "") +
+                (hours ? String(hours) + "h " : "") +
+                (String(minutes) + "m")
+              ).c_str();
+
+
+#####################################################################################
+################################### Binary sensor ###################################
+binary_sensor:
+#Availability of a bowl
+  - platform: template
+    name: "Bowl"
+    icon: mdi:bowl
+    id: idBowl
+    internal: false #Hide - true \show - false
+
+#The presence of food in the bowl
+  - platform: template
+    name: "Food"
+    icon: mdi:bowl
+    id: idFood
+    internal: false #Hide - true \show - false
+
+
+#####################################################################################
+###################################### Text Sensor ##################################
+text_sensor:
+#IP sensor
+  - platform: wifi_info
+    ip_address:
+      name: IP
+
+#ESPHome Version
+  - platform: version
+    name: "ESPHome Version"
+    hide_timestamp: true
+    
+
+#Uptime
+  - platform: template
+    name: "Uptime ESP"
+    icon: mdi:clock-start
+    id: uptime_esp
+    entity_category: diagnostic
+
+
+#####################################################################################
+####################################### Button ######################################
+button:
+#Reboot
+  - platform: restart
+    name: "Restart"
+    icon: mdi:restart
+
+#The feeding button. Gives out portions of feed as much as the amount of feed will be set in the slider
+  - platform: template
+    name: "Feed"
+    icon: mdi:food-drumstick
+    on_press:
+      - if:
+          condition:
+              - lambda: 'return id(idFeedPortions).state == 1;'
+          then:
+              - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x17]
+      - if:
+          condition:
+              - lambda: 'return id(idFeedPortions).state == 2;'
+          then:
+              - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x02, 0x18]
+      - if:
+          condition:
+              - lambda: 'return id(idFeedPortions).state == 3;'
+          then:
+              - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x03, 0x19]
+      - if:
+          condition:
+              - lambda: 'return id(idFeedPortions).state == 4;'
+          then:
+              - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x1A]
+      - if:
+          condition:
+              - lambda: 'return id(idFeedPortions).state == 5;'
+          then:
+              - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x05, 0x1B]
+      - if:
+          condition:
+              - lambda: 'return id(idFeedPortions).state == 6;'
+          then:
+              - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x06, 0x1C]
+
+
+#####################################################################################
+###################################### Number #######################################
+number:
+#We set the weight of the bowl so as not to display the weight, but to display the weight of the feed
+  - platform: template
+    name: "Set weight for bowl"
+    icon: mdi:bowl
+    id: idSetWeightBowl
+    min_value: 70
+    max_value: 100
+    step: 1
+    mode: slider #slider/box
+    optimistic: true
+    restore_value: true
+
+#We set the amount of feed served
+  - platform: template
+    name: "Feed Portions"
+    icon: mdi:wall-sconce-round-variant
+    id: idFeedPortions
+    min_value: 1
+    max_value: 6
+    step: 1
+    mode: slider #slider/box
+    optimistic: true
+    restore_value: true
+
+#Voice playback time
+  - platform: template
+    name: "Voice Times"
+    id: idVoiceTimes
+    min_value: 1
+    max_value: 6
+    step: 1
+    mode: slider #slider/box
+    optimistic: true
+    restore_value: true
+    on_value:
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 0;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x25]
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 1;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x26]
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 2;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x02, 0x27]
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 3;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x03, 0x28]
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 4;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x29]
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 5;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x05, 0x2A]
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 6;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x06, 0x2B]
+
+
+#####################################################################################
+######################################## Time #######################################
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: Europe/Moscow
+
+```
+  
+</details>
+
+
+</details>
+
+
