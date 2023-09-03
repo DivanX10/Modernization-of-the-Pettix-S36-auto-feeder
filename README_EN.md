@@ -1,4 +1,4 @@
-# We are finalizing the autocormer. We redo the bowl and embed the scales in the bowl
+# We are finalizing the auto feeder. We redo the bowl and embed the scales in the bowl
 
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/680f93cf-808a-4fb4-938e-c62c3f006a86)
 
