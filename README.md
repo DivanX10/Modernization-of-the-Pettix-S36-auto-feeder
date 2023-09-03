@@ -5,8 +5,11 @@
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/680f93cf-808a-4fb4-938e-c62c3f006a86)
 
 
+***
 
+### Смотреть [видео](https://youtu.be/qWqOF85e7Kk)
 
+***
 
 ### Что нужно для сборки весов для миски:
 * Чувствительные тензодатчики с точностью 1 грамм. Найти можно в электронных кухонных весах с круглыми ножками. Берем любые кухонные весы с круглыми ножками, а не с палками. Это легко можно понять, если перевернуть весы. [Я брал такие кухонные весы](https://ozon.ru/t/zewBN6W)
@@ -264,11 +267,9 @@ input_number:
   
 </details>
 
-***
-
-### Смотреть [видео](https://youtu.be/qWqOF85e7Kk)
 
 ***
+
 
 ### Отвязываем кормушку от облака Tuya и переводим на ESPHome
 
@@ -276,8 +277,13 @@ input_number:
 <details>
   <summary><b>Подключаем ESP к кормушке</b></summary>
 
-  > Используйте платы ESP8266, а хотите ESP32 на свое усмотрение, я использовал ESP32 по той причине, что оно у меня было свободным  
+  > Используйте платы ESP8266, а хотите ESP32 на свое усмотрение, я использовал ESP32 по той причине, что оно у меня было свободным
+ 
+Выпаиваем чип WBR2 и подключаем ESP
 
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/c1ad69c7-c963-4932-bf9b-0d4a6b19d0ea)
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/533b0f16-4dcd-42ce-8f7d-36d0fdd44692)
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/809a2a13-1474-4863-b981-b2fb7d714dd4)
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/87fc1946-cf70-4b3f-ae72-8fb07e55289a)
   
 </details>
