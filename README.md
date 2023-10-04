@@ -1,6 +1,6 @@
 ### [Read in English here](https://github.com/DivanX10/cat-bowl-with-scales/blob/main/README_EN.md)
 
-# Дорабатываем автокормушку. Переделываем миску и встраиваем в миску весы
+# Модернизация автокормушки Pettix S36
 
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/680f93cf-808a-4fb4-938e-c62c3f006a86)
 
