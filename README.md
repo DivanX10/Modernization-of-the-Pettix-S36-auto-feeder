@@ -2275,10 +2275,36 @@ time:
                 }
               }
                 
-
-
-
 ```
+</details>
+<details>
+  <summary><b>3D модель вращающейся миски с весами</b></summary>
+
+
+Миска состоит из 9 деталей. Сделано для экономии времени печати и филамента на случай, если деталь сломалась и чтобы не печатать всю миску целиком заново
+
+Готовые модели можно скачать [тут](https://github.com/DivanX10/cat-bowl-with-scales/tree/main/files/STL%20Rotating%20bowl%20with%20scales)
+
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/60d0ccdc-6676-401e-a891-9a3c8a167a8f)
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/8639263d-14a0-48e9-a135-98d8f03aaa88)
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/92992d0f-fc7d-4a72-b76b-331a0c5d9b01)
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/94f9bdb8-2e78-4320-a041-8b192447eb36)
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/eddf0661-bdc9-45e0-b25b-b4cd3d5b47d4)
 
 </details>
+
+
+<details>
+  <summary><b>Карточка управления автокормушкой</b></summary>
+
+
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/0ea5a779-a1e7-45b9-a04b-c5f7cabc6c33)
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/145d8f67-2f90-4d5c-8117-dd6e0af94eba)
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/56249cd0-063f-47ee-984a-a36cec260e0c)
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/7a2fb09e-eaa8-48e9-89b0-cad0d9cfd5db)
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/7db41e42-90c1-42b8-a4ee-9cd4e450a390)
+
+</details>
+
+
 
