@@ -2298,11 +2298,337 @@ time:
   <summary><b>Карточка управления автокормушкой</b></summary>
 
 
+<details>
+  <summary>Скриншоты карточки</summary>
+
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/0ea5a779-a1e7-45b9-a04b-c5f7cabc6c33)
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/145d8f67-2f90-4d5c-8117-dd6e0af94eba)
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/56249cd0-063f-47ee-984a-a36cec260e0c)
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/7a2fb09e-eaa8-48e9-89b0-cad0d9cfd5db)
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/7db41e42-90c1-42b8-a4ee-9cd4e450a390)
+
+
+</details>
+
+<details>
+  <summary>Код карточки</summary>
+
+```
+type: vertical-stack
+cards:
+  - square: false
+    columns: 1
+    type: grid
+    cards:
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            entity: binary_sensor.feeder_s36_tuya_bowl
+            tap_action:
+              action: call-service
+              service: button.press
+              target:
+                entity_id: button.feeder_s36_tuya_feed
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+            state:
+              - value: 'on'
+                color: green
+              - value: 'off'
+                color: red
+            icon: mdi:wall-sconce-round-variant
+            name: |
+              [[[
+                if (entity.state == "on")
+                  return "Насыпать корм";
+                if (entity.state == "off")
+                  return "Миски нет";
+              ]]]
+            color: SteelBlue
+            styles:
+              card:
+                - padding: 1%
+                - color: ivory
+                - font-size: 10px
+                - height: 250px
+              grid:
+                - grid-template-areas: '"i icon" "n icon" "n weight_food" "n day" "n status" '
+                - grid-template-columns: lfr lf
+                - grid-template-rows: lfr min-content min-content
+              name:
+                - font-size: 25px
+                - color: BurlyWood
+                - font-weight: bold
+                - padding-bottom: 180px
+                - justify-self: center
+              img_cell:
+                - justify-content: end
+                - margin: none
+                - margin-top: '-10%'
+                - grid-row: 1 / span 6
+              icon:
+                - width: 300px
+                - height: 160px
+                - margin-top: 2%
+                - top: 65px
+              custom_fields:
+                weight_food:
+                  - justify-self: center
+                  - margin-top: '-20%'
+                  - height: 70px
+                  - width: 150px
+                  - font-size: 16px
+                  - line-height: 20px
+                  - color: BurlyWood
+                day:
+                  - justify-self: center
+                  - margin-top: 5%
+                  - height: 70px
+                  - width: 150px
+                  - font-size: 16px
+                  - line-height: 20px
+                  - color: BurlyWood
+                status:
+                  - justify-self: center
+                  - margin-top: 5%
+                  - height: 80px
+                  - width: 150px
+                  - font-size: 16px
+                  - line-height: 20px
+                  - color: BurlyWood
+            custom_fields:
+              weight_food: |
+                [[[
+                  return `<ha-icon icon="mdi:weight-gram" style="width: 50px; height: 30px; color: SteelBlue;">
+                  </ha-icon><br>Вес корма<br><span>${states['sensor.feeder_s36_tuya_weight_food'].state}</span>g<p>`
+                ]]]
+              day: |
+                [[[
+                  return `<ha-icon icon="mdi:food-drumstick" style="width: 50px; height: 30px; color: SteelBlue;">
+                  </ha-icon><br>Кормлении в день<br><span>${states['sensor.feeder_s36_tuya_feeding_per_day'].state}</span><p>`
+                ]]]
+              status: |
+                [[[
+                  if (states['binary_sensor.feeder_s36_tuya_food_level'].state == 'on')
+                  return  `<ha-icon icon="mdi:food-drumstick" style="width: 50px; height: 30px; color: SteelBlue;">
+                  </ha-icon><br>В контейнере<br><span>корм есть</span>`
+                  
+                  return  `<ha-icon icon="mdi:food-drumstick-off" style="width: 50px; height: 30px; color: red;">
+                  </ha-icon><br>В контейнере<br><span>закончился корм</span>`
+                ]]]
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.autofeeder_s36_tuya_control_panel_1
+            tap_action:
+              action: toggle
+            icon_color: red
+            name: Кормление
+            secondary_info: none
+            icon: mdi:food-drumstick
+            fill_container: false
+            layout: vertical
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.autofeeder_s36_tuya_control_panel_2
+            name: Настройка
+            tap_action:
+              action: toggle
+            secondary_info: none
+            layout: vertical
+            icon: mdi:menu
+            icon_color: orange
+          - type: custom:mushroom-entity-card
+            name: Инфо
+            tap_action:
+              action: toggle
+            secondary_info: none
+            layout: vertical
+            entity: input_boolean.autofeeder_s36_tuya_control_panel_3
+            icon: mdi:information
+            icon_color: yellow
+          - type: custom:mushroom-entity-card
+            tap_action:
+              action: toggle
+            secondary_info: none
+            layout: vertical
+            entity: input_boolean.autofeeder_s36_tuya_control_panel_4
+            icon: mdi:chart-bar
+            icon_color: teal
+            name: Графики
+      - type: conditional
+        conditions:
+          - entity: input_boolean.autofeeder_s36_tuya_control_panel_1
+            state: 'on'
+        card:
+          type: entities
+          entities:
+            - entity: button.feeder_s36_tuya_feed
+              name: Кормежка вручную
+              secondary_info: last-changed
+            - entity: number.feeder_s36_tuya_feed_portions
+              name: Порции корма
+            - entity: switch.feeder_s36_tuya_slow_feed
+              name: Медленная кормежка
+            - entity: switch.feeder_s36_tuya_feed_on_time
+              name: Кормить по расписанию
+            - entity: switch.feeder_s36_tuya_food_control
+              name: Контроль лишнего корма
+            - entity: number.feeder_s36_tuya_feed_weight_limit
+              name: Лимит корма
+            - entity: number.feeder_s36_tuya_feeding_time_01
+              name: Время кормления 1
+            - entity: number.feeder_s36_tuya_feeding_time_02
+              name: Время кормления 2
+            - entity: number.feeder_s36_tuya_feeding_time_03
+              name: Время кормления 3
+            - entity: number.feeder_s36_tuya_feeding_time_04
+              name: Время кормления 4
+            - entity: number.feeder_s36_tuya_feeding_time_05
+              name: Время кормления 5
+            - entity: number.feeder_s36_tuya_feeding_time_06
+              name: Время кормления 6
+            - entity: number.feeder_s36_tuya_feeding_time_07
+              name: Время кормления 7
+            - entity: number.feeder_s36_tuya_feeding_time_08
+              name: Время кормления 8
+            - entity: number.feeder_s36_tuya_feeding_time_09
+              name: Время кормления 9
+            - entity: number.feeder_s36_tuya_feeding_time_10
+              name: Время кормления 10
+            - entity: number.feeder_s36_tuya_feeding_time_11
+              name: Время кормления 11
+            - entity: number.feeder_s36_tuya_feeding_time_12
+              name: Время кормления 12
+      - type: conditional
+        conditions:
+          - entity: input_boolean.autofeeder_s36_tuya_control_panel_2
+            state: 'on'
+        card:
+          type: entities
+          entities:
+            - entity: number.feeder_s36_tuya_voice_times
+              name: Время речи
+            - entity: switch.feeder_s36_tuya_24_hours
+              name: 24 часа
+            - entity: sensor.feeder_s36_tuya_bowl_current_position
+              name: Положение миски
+            - entity: sensor.feeder_s36_tuya_weight
+              name: Общий вес
+              secondary_info: last-changed
+            - entity: sensor.feeder_s36_tuya_weight_food
+              name: Вес корма
+            - entity: number.feeder_s36_tuya_set_weight_for_bowl
+              name: Указать вес миски
+            - entity: button.feeder_s36_tuya_remove_weight_bowl
+              name: Убрать вес миски
+            - entity: cover.feeder_s36_tuya_bowl_control
+              name: Вращение миски
+            - entity: number.feeder_s36_tuya_feed_position_1
+              name: Вращение. Порция 1
+            - entity: number.feeder_s36_tuya_feed_position_2
+              name: Вращение. Порция 2
+            - entity: number.feeder_s36_tuya_feed_position_3
+              name: Вращение. Порция 3
+            - entity: number.feeder_s36_tuya_feed_position_4
+              name: Вращение. Порция 4
+            - entity: number.feeder_s36_tuya_feed_position_5
+              name: Вращение. Порция 5
+            - entity: number.feeder_s36_tuya_feed_position_6
+              name: Вращение. Порция 6
+            - entity: button.feeder_s36_tuya_rotate_bowl
+              name: Повернуть миску
+            - entity: number.feeder_s36_tuya_feed_position_7
+              name: Положение миски
+      - type: conditional
+        conditions:
+          - entity: input_boolean.autofeeder_s36_tuya_control_panel_3
+            state: 'on'
+        card:
+          type: entities
+          entities:
+            - entity: binary_sensor.feeder_s36_tuya_bowl
+              name: Наличие миски
+              secondary_info: last-changed
+            - entity: binary_sensor.feeder_s36_tuya_food
+              name: Корм в миске
+            - entity: binary_sensor.feeder_s36_tuya_food_level
+              name: Корм в баке
+            - entity: sensor.feeder_s36_tuya_weight
+              name: Общий вес
+            - entity: sensor.feeder_s36_tuya_weight_food
+              name: Вес корма
+            - entity: sensor.feeder_s36_tuya_time
+              name: Время
+            - entity: sensor.feeder_s36_tuya_uptime
+              name: Время работы
+            - entity: sensor.feeder_s36_tuya_ip
+              name: IP
+              icon: mdi:ip-network
+            - entity: device_tracker.feeder_s36_tuya
+              name: В сети
+              icon: ''
+            - entity: sensor.feeder_s36_tuya_esphome_version
+              name: Версия ESPHome
+            - entity: update.feeder_s36_tuya_firmware
+              name: Прошивка
+            - entity: button.feeder_s36_tuya_restart
+              name: Перезагрузить
+      - type: conditional
+        conditions:
+          - entity: input_boolean.autofeeder_s36_tuya_control_panel_4
+            state: 'on'
+        card:
+          type: custom:history-explorer-card
+          header: Автокормушка Tuya S36
+          cardName: historycard-36245334
+          lineMode: stepped
+          uiColors:
+            gridlines: '#F5FFFA'
+            labels: '#F5FFFA'
+            buttons: '#0000001f'
+            selector: rgba(255,255,255,255)
+            closeButton: '#0000001f'
+          lineGraphHeight: 300
+          barGraphHeight: 300
+          timelineBarHeight: 24
+          timelineBarSpacing: 30
+          refresh:
+            automatic: true
+            interval: 30
+          graphs:
+            - type: bar
+              options:
+                interval: daily
+              entities:
+                - entity: sensor.feeder_s36_tuya_weight_food
+                  name: Вес корма
+                  scale: 0.5
+                  width: 2
+                  color: '#F4A460'
+                - entity: sensor.feeder_s36_tuya_feeding_per_day
+                  name: Кормлении в день
+                  scale: 0.5
+                  width: 2
+                  color: '#7FFF00'
+                - entity: binary_sensor.feeder_s36_tuya_food
+                  name: Наличие миски
+                  scale: 0.5
+                  width: 2
+                  stateColors:
+                    'on': '#7CFC00'
+                    'off': '#FF4500'
+                - entity: binary_sensor.feeder_s36_tuya_food_level
+                  name: Наличие корма
+                  scale: 0.5
+                  width: 2
+                  stateColors:
+                    'on': '#48D1CC'
+                    'off': '#FF4500'
+
+```
+</details>
 
 </details>
 
