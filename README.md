@@ -2313,6 +2313,11 @@ time:
 <details>
   <summary>Код карточки</summary>
 
+Необходимые интеграции
+
+* [Button card](https://github.com/custom-cards/button-card)
+* [History explorer card](https://github.com/alexarch21/history-explorer-card)
+
 ```
 type: vertical-stack
 cards:
