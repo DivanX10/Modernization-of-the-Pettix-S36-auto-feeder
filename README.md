@@ -2,6 +2,8 @@
 
 # Модернизация автокормушки Pettix S36
 
+Проект для ESPHome и Home Assistant
+
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/680f93cf-808a-4fb4-938e-c62c3f006a86)
 
 
@@ -945,7 +947,7 @@ sensor:
 </details>
 
 <details>
-  <summary><b>Карточка управления автокормушкой</b></summary>
+  <summary><b>Home Assistant: Карточка управления автокормушкой</b></summary>
   
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/c761cc49-fe44-45ce-95d7-375ef393cc4a)
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/24ff4dbf-113b-410a-813d-a3d76ea75304)
@@ -1026,22 +1028,14 @@ title: Автокормушка
 
 
 <details>
-  <summary><b>Шаблоны: сенсоры, выключатели, группы</b></summary>
+  <summary><b>Home Assistant: Cенсоры, выключатели, группы</b></summary>
   
 
 ```
-#Используем сенсоры нового образца от 2023
+#Шаблоны
 #Документация https://www.home-assistant.io/integrations/template/
-#Это пример нового образца шаблонов
-#template:
-#  - sensor:
-#      ...
-#  - binary_sensor:
-
 
 template:
-#Кухня: Авто кормушка. Статусы
-#Объект: sensor.kukhnia_avto_kormushka_statusy
   - sensor:
       - name: 'Кухня: Автокормушка. Статусы'
         unique_id: kitchen auto feeder status
@@ -1055,19 +1049,15 @@ template:
 
 
 #Вспомогательный элемент: Input Boolean
-#https://www.home-assistant.io/integrations/input_boolean/
+#Документация https://www.home-assistant.io/integrations/input_boolean/
 input_boolean:
-#Автокормушка: Сыпать корм автоматически
-#Объект: input_boolean.smartfeeder_pour_the_feed_automatically
   smartfeeder_pour_the_feed_automatically:
     name: "Автокормушка: Сыпать корм автоматически"
     icon: mdi:cat
 
 #Группы
-#https://www.home-assistant.io/integrations/group/
+#Документация https://www.home-assistant.io/integrations/group/
 group:
-#Автокормушка: Инфо и меню
-#Объект: group.kitchen_auto_feeder_info_and_menu
   kitchen_auto_feeder_info_and_menu:
     name: "Автокормушка: Инфо и меню"
     icon: mdi:information-outline
@@ -1084,8 +1074,6 @@ group:
 #Вспомогательный элемент: Число
 #https://www.home-assistant.io/integrations/input_number
 input_number:
-#Автокормушка: Минимальный порог корма
-#Объект: input_number.kitchen_auto_feeder_min_feed_threshold
   kitchen_auto_feeder_min_feed_threshold:
     name: "Минимальный порог корма"
     min: 5
@@ -2295,7 +2283,7 @@ time:
 
 
 <details>
-  <summary><b>Карточка управления автокормушкой</b></summary>
+  <summary><b>Home Assistant: Карточка управления автокормушкой</b></summary>
 
 
 <details>
@@ -2633,6 +2621,158 @@ cards:
                     'off': '#FF4500'
 
 ```
+</details>
+
+</details>
+<details>
+  <summary><b>Home Assistant: Сенсоры, вспомогательные элементы, автоматизация</b></summary>
+
+
+<details>
+  <summary>Сенсор и вспомогательные элементы</summary>
+  
+
+```
+#Шаблоны
+#Документация https://www.home-assistant.io/integrations/template/
+template:
+  - sensor:
+      - name: 'Кухня: Автокормушка Tuya. Статусы'
+        unique_id: feeder tuya status
+        icon: mdi:cat
+        state: '{{ states("input_boolean.feeder_tuya_pour_the_feed_automatically") }}'
+        attributes:
+          Вес миски: '{{ states("sensor.scales_cat_bowl_weight") }}'
+          Вес корма: '{{ states("sensor.scales_cat_bowl_weight_food") }}'
+          Наличие миски: '{{ states("binary_sensor.scales_cat_bowl_bowl") }}'
+          Наличие корма: '{{ states("binary_sensor.scales_cat_bowl_food") }}'
+
+
+#Вспомогательный элемент: Input Boolean
+#Документация https://www.home-assistant.io/integrations/input_boolean/
+input_boolean:
+  autofeeder_s36_tuya_control_panel_1:
+    name: "Автокормушка S36: Панель управления 1"
+    icon: mdi:menu
+
+  autofeeder_s36_tuya_control_panel_2:
+    name: "Автокормушка S36: Панель управления 2"
+    icon: mdi:menu
+
+  autofeeder_s36_tuya_control_panel_3:
+    name: "Автокормушка S36: Панель управления 3"
+    icon: mdi:menu
+
+  autofeeder_s36_tuya_control_panel_4:
+    name: "Автокормушка S36: Панель управления 4"
+    icon: mdi:menu
+
+
+```
+  
+</details>
+
+
+<details>
+  <summary>Автоматизация</summary>
+  
+
+```
+alias: "Автокормушка Tuya S36: Lovelace. Панель управления"
+description: >-
+  При переключении меню не закрываются и нужно закрыть одно, а потом открыть
+  другое. Эта автоматизация будет при открытии меню, закрывать другое меню
+trigger:
+  - platform: state
+    entity_id:
+      - input_boolean.autofeeder_s36_tuya_control_panel_1
+    alias: Панель управления 1 - открыто
+    id: Панель управления 1 - открыто
+    to: "on"
+  - platform: state
+    entity_id:
+      - input_boolean.autofeeder_s36_tuya_control_panel_2
+    alias: Панель управления 2 - открыто
+    id: Панель управления 2 - открыто
+    to: "on"
+  - platform: state
+    entity_id:
+      - input_boolean.autofeeder_s36_tuya_control_panel_3
+    alias: Панель управления 3 - открыто
+    id: Панель управления 3 - открыто
+    to: "on"
+  - platform: state
+    entity_id:
+      - input_boolean.autofeeder_s36_tuya_control_panel_4
+    alias: Панель управления 4 - открыто
+    id: Панель управления 4 - открыто
+    to: "on"
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id:
+              - Панель управления 1 - открыто
+            alias: Панель управления 1 - открыто
+        sequence:
+          - service: input_boolean.turn_off
+            data: {}
+            target:
+              entity_id:
+                - input_boolean.autofeeder_s36_tuya_control_panel_2
+                - input_boolean.autofeeder_s36_tuya_control_panel_3
+                - input_boolean.autofeeder_s36_tuya_control_panel_4
+            alias: Выключить панель управления 2,3,4
+      - conditions:
+          - condition: trigger
+            id:
+              - Панель управления 2 - открыто
+            alias: Панель управления 2 - открыто
+        sequence:
+          - service: input_boolean.turn_off
+            data: {}
+            target:
+              entity_id:
+                - input_boolean.autofeeder_s36_tuya_control_panel_3
+                - input_boolean.autofeeder_s36_tuya_control_panel_4
+                - input_boolean.autofeeder_s36_tuya_control_panel_1
+            alias: Выключить панель управления 1,3,4
+      - conditions:
+          - condition: trigger
+            id:
+              - Панель управления 3 - открыто
+            alias: Панель управления 3 - открыто
+        sequence:
+          - service: input_boolean.turn_off
+            data: {}
+            target:
+              entity_id:
+                - input_boolean.autofeeder_s36_tuya_control_panel_4
+                - input_boolean.autofeeder_s36_tuya_control_panel_1
+                - input_boolean.autofeeder_s36_tuya_control_panel_2
+            alias: Выключить панель управления 1,2,4
+      - conditions:
+          - condition: trigger
+            id:
+              - Панель управления 4 - открыто
+            alias: Панель управления 4 - открыто
+        sequence:
+          - service: input_boolean.turn_off
+            data: {}
+            target:
+              entity_id:
+                - input_boolean.autofeeder_s36_tuya_control_panel_1
+                - input_boolean.autofeeder_s36_tuya_control_panel_2
+                - input_boolean.autofeeder_s36_tuya_control_panel_3
+            alias: Выключить панель управления 1,2,3
+mode: single
+
+```
+  
+</details>
+
+
 </details>
 
 </details>
