@@ -298,9 +298,10 @@ sensor:
 <details>
   <summary><b>Cхема подключения</b></summary>
 
+Питание берем от самой автокормушки, которое выдает 5V и 1A, чего будет достаточно, чтобы запитать всю кормушку полностью. Для полной работы кормушки требуется сила тока до 800мА
 
+![Connection diagram 01](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/82ead812-b407-4f3a-81b9-9df1173ad573)
 
-  
 
 </details>
 
