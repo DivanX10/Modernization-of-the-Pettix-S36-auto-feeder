@@ -1,4 +1,4 @@
-# Modernization of the Pettix S36 automatic feeder
+# Modernization of the Pettix S36 auto feeder
 
 Project for ESPHome and Home Assistant
 
