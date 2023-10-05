@@ -278,7 +278,7 @@ sensor:
 * Контроллер весов HX711
 * Модуль драйвера ULN2003 и шаговый двигатель 28YBJ 48
 * Модуль часов реального времени (RTS) DS1307
-* Подшипник 6814 2RS (61814) SLZ Подшипник. Брал [здесь](https://ozon.ru/t/6M8ZB3Y)
+* Подшипник 6814 2RS (61814) SLZ. Брал [здесь](https://ozon.ru/t/6M8ZB3Y)
 <img src="https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/ef17c186-4428-45d1-8580-bf0b5b19b3b0" width=40%>
 
 * Распечатать миску и платформу. Скачать можно [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/tree/main/files/STL%20Rotating%20bowl%20with%20scales)
@@ -321,7 +321,12 @@ sensor:
 Готовые модели можно скачать [тут](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/tree/main/files/STL%20Rotating%20bowl%20with%20scales)
 
 
-![3d model rotating bowl with scales](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/5ea1d579-6f5d-48d0-b5c5-f5021d340d0c)
+![image](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/1300658d-b24c-4751-83ff-323fc8251d8f)
+
+> Оранжевый круг, это подшипник 6814 2RS (61814) SLZ, который вставляется в круглую платформу под стальную миску (на скриншоте синего цвета)
+
+![image](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/69a98ae4-d7f7-41f9-9f3f-d81ba4872770)
+
 
 
 </details>
