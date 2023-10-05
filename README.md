@@ -281,6 +281,7 @@ sensor:
 * Подшипник 6814 2RS (61814) SLZ. Брал [здесь](https://ozon.ru/t/6M8ZB3Y)
 <img src="https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/ef17c186-4428-45d1-8580-bf0b5b19b3b0" width=40%>
 
+* Жидкая резина KUDO COLOR FLEX, Прозрачная. Брал [здесь](https://ozon.ru/t/wz6gR7n)
 * Распечатать миску и платформу. Скачать можно [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/tree/main/files/STL%20Rotating%20bowl%20with%20scales)
 
 </details>
@@ -316,14 +317,14 @@ sensor:
   <summary><b>3D модель</b></summary>
 
 
-Миска состоит из нескольких деталей. Сделано для экономии времени печати и филамента на случай, если деталь сломалась и чтобы не печатать всю миску целиком заново
+Миска состоит из нескольких деталей. Сделано для экономии времени печати и филамента на случай, если деталь сломалась и чтобы не печатать всю миску целиком заново. Про подшипник 6814 2RS (61814) SLZ читаем ниже 
 
 Готовые модели можно скачать [тут](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/tree/main/files/STL%20Rotating%20bowl%20with%20scales)
 
 
 ![image](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/1300658d-b24c-4751-83ff-323fc8251d8f)
 
-> Оранжевый круг, это подшипник 6814 2RS (61814) SLZ, который вставляется в круглую платформу под стальную миску (на скриншоте синего цвета)
+> Оранжевый круг, это подшипник 6814 2RS (61814) SLZ, который вставляется в круглую платформу под стальную миску (на скриншоте синего цвета). Чтобы стальная миска не скользила на верхней части платформы, рекомендую сделать напыление дидкой резиной. Получается отличное сцепление с миской
 
 ![image](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/69a98ae4-d7f7-41f9-9f3f-d81ba4872770)
 
