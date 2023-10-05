@@ -325,7 +325,7 @@ We take power from the automatic feeder itself, which produces 5V and 1A, which 
   <summary><b>Home Assistant</b></summary>
 
 
-![feeder_pettix_s36_control_panel_ru](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/acfdeed5-26c6-4066-af82-268f88884132)
+![1](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/6b717a0f-eec7-445b-be9f-a7ee927413a9)
 
 **For the card to work, you need to install components**
 * [History explorer card](https://github.com/alexarch21/history-explorer-card)
