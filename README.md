@@ -370,11 +370,9 @@ sensor:
 
 Готовые модели можно скачать [тут](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/tree/main/files/STL%20Rotating%20bowl%20with%20scales)
 
-![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/60d0ccdc-6676-401e-a891-9a3c8a167a8f)
-![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/8639263d-14a0-48e9-a135-98d8f03aaa88)
-![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/92992d0f-fc7d-4a72-b76b-331a0c5d9b01)
-![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/94f9bdb8-2e78-4320-a041-8b192447eb36)
-![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/eddf0661-bdc9-45e0-b25b-b4cd3d5b47d4)
+
+![3d model rotating bowl with scales](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/5ea1d579-6f5d-48d0-b5c5-f5021d340d0c)
+
 
 </details>
 
