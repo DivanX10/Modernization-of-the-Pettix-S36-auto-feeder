@@ -245,18 +245,19 @@ sensor:
   <summary><b>Home Assistant</b></summary>
 
 
-  
+**Для работы карточки необходимо установить компоненты**
+* [Fold Entity Row](https://github.com/thomasloven/lovelace-fold-entity-row)
+* [Multiple Entity Row](https://github.com/benct/lovelace-multiple-entity-row)
+
+**Карточка и шаблоны**
+* Код карточки можно взять [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/blob/main/files/HomeAssistant/ru/Карточка.%20Миска%20с%20весами.yaml)
+* Код шаблона можно взять [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/blob/main/files/HomeAssistant/ru/Шаблон.yaml)
+
+**Скриншоты**
+
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/c761cc49-fe44-45ce-95d7-375ef393cc4a)
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/24ff4dbf-113b-410a-813d-a3d76ea75304)
-
-
-Для работы карточки необходимо установить компоненты
-* [fold-entity-row](https://github.com/thomasloven/lovelace-fold-entity-row)
-* [multiple-entity-row](https://github.com/benct/lovelace-multiple-entity-row)
-
-Код карточки можно взять [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/blob/main/files/HomeAssistant/ru/Карточка.%20Миска%20с%20весами.yaml)
-Код шаблона можно взять [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/blob/main/files/HomeAssistant/ru/Шаблон.yaml)
-
+  
 </details>
 
 <details>
