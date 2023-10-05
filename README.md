@@ -175,10 +175,10 @@ sensor:
     name: "${node_name} Weight"
     icon: mdi:scale
     id: idWeight
-    dout_pin: D7 # DT
-    clk_pin: D6  # SCK
+    dout_pin: D7 #DT
+    clk_pin: D6  #SCK
     gain: 64
-    update_interval: 2s
+    update_interval: 1s
     unit_of_measurement: g
     accuracy_decimals: 0
     device_class: weight
@@ -192,8 +192,8 @@ sensor:
 ```
       - median:
           window_size: 7
-          send_every: 5
-          send_first_at: 4
+          send_every: 4
+          send_first_at: 3
 ```
                 
 </details>
