@@ -280,7 +280,7 @@ sensor:
 * Модуль драйвера ULN2003 и шаговый двигатель 28YBJ 48
 * Модуль часов реального времени (RTS) DS1307
 * Подшипник 6814 2RS (61814) SLZ Подшипник. Брал [здесь](https://ozon.ru/t/6M8ZB3Y)
-  ![image](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/ef17c186-4428-45d1-8580-bf0b5b19b3b0)
+<img src="https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/ef17c186-4428-45d1-8580-bf0b5b19b3b0" width=40%>
 
 * Распечатать миску и платформу. Скачать можно [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/tree/main/files/STL%20Rotating%20bowl%20with%20scales)
 
