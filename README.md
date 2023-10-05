@@ -194,7 +194,7 @@
 <details>
   <summary><b>ESPHome</b></summary>
 
-### Полный код можно посмотреть [здесь](https://github.com/DivanX10/cat-bowl-with-scales/tree/main/config)
+### Полный код можно посмотреть [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/blob/main/files/ESPHome/ru/feeder-s36-tuya%20(весы).yaml)
 ***  
 Перед тем как использовать весь код, откалибруйте свои весы. Уберите из кода эти строчки и включите журналирование в режиме DEBUG. Так мы будем получать сырые данные. Зафиксируйте вес без груза, скопируйте цифры с логов как есть, потом возъмите груз на 500 грамм и поставьте на весы, зафиксируйте цифры. Все эти цифры запишите в линейный фильтр
 
@@ -255,8 +255,8 @@ sensor:
 * [fold-entity-row](https://github.com/thomasloven/lovelace-fold-entity-row)
 * [multiple-entity-row](https://github.com/benct/lovelace-multiple-entity-row)
 
-Код карточки можно взять [здесь]()
-Код шаблона можно взять [здесь]()
+Код карточки можно взять [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/blob/main/files/HomeAssistant/ru/Карточка.%20Миска%20с%20весами.yaml)
+Код шаблона можно взять [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/blob/main/files/HomeAssistant/ru/Шаблон.yaml)
 
 </details>
 
@@ -265,7 +265,7 @@ sensor:
   
 Платформу спроектировал в программе FreeCAD. Скачать FreeCAD [можно здесь](https://www.freecad.org/?lang=ru). Я вложил 3 файла, два файла STL и один для FreeCAD, где вы сможете отредактировать при необходимости. Я спроектировал так, чтобы тензодатчики держались крепко и сделал клипсы в виде дуги из-за чего тензодатчики с трудом встают на свои места, нужно тоненькой плоской отверткой поддеть, но зато стоят четко и очень трудно их будет демонтировать без повреждения корпуса.
 
-Готовые модели можно скачать [тут](https://github.com/DivanX10/cat-bowl-with-scales/tree/main/files)
+Готовые модели можно скачать [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/tree/main/files/STL%20Scales)
 
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/0c233383-4d06-4839-b33a-e1bf852fab4e)
 
@@ -283,12 +283,15 @@ sensor:
 * Контроллер весов HX711
 * Модуль драйвера ULN2003 и шаговый двигатель 28YBJ 48
 * Модуль часов реального времени (RTS) DS1307
-* Распечатать миску и платформу. Скачать можно [здесь](https://github.com/DivanX10/cat-bowl-with-scales/tree/main/files/STL%20Rotating%20bowl%20with%20scales)
+* Подшипник 6814 2RS (61814) SLZ Подшипник. Брал [здесь](https://ozon.ru/t/6M8ZB3Y)
+  ![image](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/ef17c186-4428-45d1-8580-bf0b5b19b3b0)
+
+* Распечатать миску и платформу. Скачать можно [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/tree/main/files/STL%20Rotating%20bowl%20with%20scales)
 
 </details>
 
 <details>
-  <summary><b>Общая схема подключения</b></summary>
+  <summary><b>Cхема подключения</b></summary>
 
 
   ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/00910005-fac4-4c2f-b378-c91905fcea85)
@@ -299,7 +302,7 @@ sensor:
   <summary><b>ESPHome</b></summary>
 
 
-### Полный код можно посмотреть [здесь](https://github.com/DivanX10/cat-bowl-with-scales/tree/main/config)
+### Полный код можно посмотреть [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/blob/main/files/ESPHome/ru/feeder-s36-tuya%20(вращающаяся%20миска%20и%20весы).yaml)
 ***  
 Перед тем как использовать весь код, откалибруйте свои весы. Уберите из кода эти строчки и включите журналирование в режиме DEBUG. Так мы будем получать сырые данные. Зафиксируйте вес без груза, скопируйте цифры с логов как есть, потом возъмите груз на 500 грамм и поставьте на весы, зафиксируйте цифры. Все эти цифры запишите в линейный фильтр
 
@@ -363,9 +366,9 @@ sensor:
   <summary><b>3D модель</b></summary>
 
 
-Миска состоит из 9 деталей. Сделано для экономии времени печати и филамента на случай, если деталь сломалась и чтобы не печатать всю миску целиком заново
+Миска состоит из нескольких деталей. Сделано для экономии времени печати и филамента на случай, если деталь сломалась и чтобы не печатать всю миску целиком заново
 
-Готовые модели можно скачать [тут](https://github.com/DivanX10/cat-bowl-with-scales/tree/main/files/STL%20Rotating%20bowl%20with%20scales)
+Готовые модели можно скачать [тут](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/tree/main/files/STL%20Rotating%20bowl%20with%20scales)
 
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/60d0ccdc-6676-401e-a891-9a3c8a167a8f)
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/8639263d-14a0-48e9-a135-98d8f03aaa88)
