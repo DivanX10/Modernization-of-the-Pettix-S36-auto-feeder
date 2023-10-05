@@ -299,7 +299,8 @@ sensor:
   <summary><b>Cхема подключения</b></summary>
 
 
-  ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/00910005-fac4-4c2f-b378-c91905fcea85)
+
+  
 
 </details>
 
