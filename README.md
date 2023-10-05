@@ -245,6 +245,7 @@ sensor:
   <summary><b>Home Assistant</b></summary>
 
 
+
 **Для работы карточки необходимо установить компоненты**
 * [Fold Entity Row](https://github.com/thomasloven/lovelace-fold-entity-row)
 * [Multiple Entity Row](https://github.com/benct/lovelace-multiple-entity-row)
@@ -252,11 +253,6 @@ sensor:
 **Карточка и шаблоны**
 * Код карточки можно взять [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/blob/main/files/HomeAssistant/ru/Карточка.%20Миска%20с%20весами.yaml)
 * Код шаблона можно взять [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/blob/main/files/HomeAssistant/ru/Шаблон.yaml)
-
-**Скриншоты**
-
-![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/c761cc49-fe44-45ce-95d7-375ef393cc4a)
-![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/24ff4dbf-113b-410a-813d-a3d76ea75304)
   
 </details>
 
@@ -354,11 +350,15 @@ sensor:
   <summary><b>Home Assistant</b></summary>
 
 
-![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/0ea5a779-a1e7-45b9-a04b-c5f7cabc6c33)
-![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/145d8f67-2f90-4d5c-8117-dd6e0af94eba)
-![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/56249cd0-063f-47ee-984a-a36cec260e0c)
-![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/7a2fb09e-eaa8-48e9-89b0-cad0d9cfd5db)
-![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/7db41e42-90c1-42b8-a4ee-9cd4e450a390)
+![feeder_pettix_s36_control_panel_ru](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/acfdeed5-26c6-4066-af82-268f88884132)
+
+**Для работы карточки необходимо установить компоненты**
+* [History explorer card](https://github.com/alexarch21/history-explorer-card)
+* [Button Card](https://github.com/custom-cards/button-card)
+
+**Карточка и шаблоны**
+* Код карточки можно взять [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/blob/main/files/HomeAssistant/ru/Карточка.%20Вращающаяся%20миска%20с%20весами.yaml)
+* Код шаблона можно взять [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/blob/main/files/HomeAssistant/ru/Шаблон.yaml)
 
 </details>
 
