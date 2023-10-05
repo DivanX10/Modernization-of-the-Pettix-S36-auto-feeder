@@ -145,16 +145,6 @@
 
 </details>
 
-<details>
-  <summary><b>Код для ESPHome</b></summary>
-  
-Я выложил два варианта кода, один только для управления кормушкой, а второй код, где будет управление кормушкой и миска с весами
-
-* Управление только кормушкой
-* Управление кормушкой и миской с весами
-
-</details>
-
 
 </details>
 
@@ -203,7 +193,7 @@
 
 
 <details>
-  <summary><b>Код для ESPHome</b></summary>
+  <summary><b>ESPHome</b></summary>
 
 ### Полный код можно посмотреть [здесь](https://github.com/DivanX10/cat-bowl-with-scales/tree/main/config)
 ***  
@@ -254,19 +244,9 @@ sensor:
 </details>
 
 <details>
-  <summary><b>3D модель корпуса для весов под миску</b></summary>
-  
-Платформу спроектировал в программе FreeCAD. Скачать FreeCAD [можно здесь](https://www.freecad.org/?lang=ru). Я вложил 3 файла, два файла STL и один для FreeCAD, где вы сможете отредактировать при необходимости. Я спроектировал так, чтобы тензодатчики держались крепко и сделал клипсы в виде дуги из-за чего тензодатчики с трудом встают на свои места, нужно тоненькой плоской отверткой поддеть, но зато стоят четко и очень трудно их будет демонтировать без повреждения корпуса.
-
-Готовые модели можно скачать [тут](https://github.com/DivanX10/cat-bowl-with-scales/tree/main/files)
-
-![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/0c233383-4d06-4839-b33a-e1bf852fab4e)
+  <summary><b>Home Assistant</b></summary>
 
 
-</details>
-
-<details>
-  <summary><b>Home Assistant: Карточка управления автокормушкой</b></summary>
   
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/c761cc49-fe44-45ce-95d7-375ef393cc4a)
 ![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/24ff4dbf-113b-410a-813d-a3d76ea75304)
@@ -276,136 +256,22 @@ sensor:
 * [fold-entity-row](https://github.com/thomasloven/lovelace-fold-entity-row)
 * [multiple-entity-row](https://github.com/benct/lovelace-multiple-entity-row)
 
+Код карточки можно взять [здесь]()
+Код шаблона можно взять [здесь]()
 
-```
-type: entities
-entities:
-  - type: custom:fold-entity-row
-    head:
-      entity: sensor.kukhnia_avto_kormushka_statusy
-      name: Миска
-      icon: mdi:cat
-      secondary_info:
-        attribute: Вес корма
-        name: Корм
-        unit: g
-      type: custom:multiple-entity-row
-      show_state: false
-      state_header: Статус
-      entities:
-        - entity: group.kitchen_auto_feeder_info_and_menu
-          name: Меню
-          state_color: true
-          icon: mdi:information-outline
-          styles:
-            height: 60px
-            width: 50px
-        - entity: switch.slow_feed
-          name: Slow Feed
-          type: button
-          state_color: true
-          icon: mdi:speedometer-slow
-          tap_action:
-            action: toggle
-          styles:
-            height: 60px
-            width: 50px
-        - entity: input_boolean.smartfeeder_pour_the_feed_automatically
-          name: Auto Feed
-          type: button
-          state_color: true
-          icon: mdi:auto-mode
-          tap_action:
-            action: toggle
-          styles:
-            height: 60px
-            width: 50px
-        - entity: number.manual_feed
-          name: Feed
-          type: button
-          state_color: true
-          styles:
-            height: 60px
-            width: 50px
-    entities:
-      - entity: input_button.smartfeeder_pour_cat_food
-        name: Насыпать кошкам корм
-        secondary_info: last-changed
-      - entity: number.manual_feed
-        name: Насыпать корм
-      - entity: switch.slow_feed
-      - entity: input_boolean.smartfeeder_pour_the_feed_automatically
-        name: Автокормежка
-      - entity: input_number.smartfeeder_serving_quantity
-        name: Количество порции
-title: Автокормушка
-
-```
-
-  
 </details>
-
 
 <details>
-  <summary><b>Home Assistant: Cенсоры, выключатели, группы</b></summary>
+  <summary><b>3D модель</b></summary>
   
+Платформу спроектировал в программе FreeCAD. Скачать FreeCAD [можно здесь](https://www.freecad.org/?lang=ru). Я вложил 3 файла, два файла STL и один для FreeCAD, где вы сможете отредактировать при необходимости. Я спроектировал так, чтобы тензодатчики держались крепко и сделал клипсы в виде дуги из-за чего тензодатчики с трудом встают на свои места, нужно тоненькой плоской отверткой поддеть, но зато стоят четко и очень трудно их будет демонтировать без повреждения корпуса.
 
-```
-#Шаблоны
-#Документация https://www.home-assistant.io/integrations/template/
+Готовые модели можно скачать [тут](https://github.com/DivanX10/cat-bowl-with-scales/tree/main/files)
 
-template:
-  - sensor:
-      - name: 'Кухня: Автокормушка. Статусы'
-        unique_id: kitchen auto feeder status
-        icon: mdi:cat
-        state: '{{ states("input_boolean.smartfeeder_pour_the_feed_automatically") }}'
-        attributes:
-          Вес миски: '{{ states("sensor.scales_cat_bowl_weight") }}'
-          Вес корма: '{{ states("sensor.scales_cat_bowl_weight_food") }}'
-          Наличие миски: '{{ states("binary_sensor.scales_cat_bowl_bowl") }}'
-          Наличие корма: '{{ states("binary_sensor.scales_cat_bowl_food") }}'
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/0c233383-4d06-4839-b33a-e1bf852fab4e)
 
 
-#Вспомогательный элемент: Input Boolean
-#Документация https://www.home-assistant.io/integrations/input_boolean/
-input_boolean:
-  smartfeeder_pour_the_feed_automatically:
-    name: "Автокормушка: Сыпать корм автоматически"
-    icon: mdi:cat
-
-#Группы
-#Документация https://www.home-assistant.io/integrations/group/
-group:
-  kitchen_auto_feeder_info_and_menu:
-    name: "Автокормушка: Инфо и меню"
-    icon: mdi:information-outline
-    all: false
-    entities:
-      - button.scales_cat_bowl_restart #Перезагрузить
-      - binary_sensor.scales_cat_bowl_bowl #Наличие миски
-      - binary_sensor.scales_cat_bowl_food #Наличие корма
-      - number.scales_cat_bowl_set_weight_for_bowl #Указать вес миски
-      - input_number.kitchen_auto_feeder_min_feed_threshold #Минимальный порог корма
-      - sensor.scales_cat_bowl_weight #Вес миски
-      - sensor.scales_cat_bowl_weight_food #Вес корма
-
-#Вспомогательный элемент: Число
-#https://www.home-assistant.io/integrations/input_number
-input_number:
-  kitchen_auto_feeder_min_feed_threshold:
-    name: "Минимальный порог корма"
-    min: 5
-    max: 30
-    step: 1
-    mode: slider #box
-    icon: mdi:weight-gram
-
-```
-  
 </details>
-
-
 
 
 ## Автокормушка с вращающейся миской с весами
