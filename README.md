@@ -193,7 +193,7 @@
 <details>
   <summary><b>ESPHome</b></summary>
 
-### Полный код можно посмотреть [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/blob/main/files/ESPHome/ru/feeder-s36-tuya%20(весы).yaml)
+### Полный код можно посмотреть [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/blob/main/files/ESPHome/ru/feeder-pettix-s36%20(весы).yaml)
 ***  
 Перед тем как использовать весь код, откалибруйте свои весы. Уберите из кода эти строчки и включите журналирование в режиме DEBUG. Так мы будем получать сырые данные. Зафиксируйте вес без груза, скопируйте цифры с логов как есть, потом возъмите груз на 500 грамм и поставьте на весы, зафиксируйте цифры. Все эти цифры запишите в линейный фильтр
 
@@ -298,7 +298,7 @@ sensor:
   <summary><b>ESPHome</b></summary>
 
 
-### Полный код можно посмотреть [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/blob/main/files/ESPHome/ru/feeder-s36-tuya%20(вращающаяся%20миска%20и%20весы).yaml)
+### Полный код можно посмотреть [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/blob/main/files/ESPHome/ru/feeder-pettix-s36%20(вращающаяся%20миска%20и%20весы).yaml)
 ***  
 Перед тем как использовать весь код, откалибруйте свои весы. Уберите из кода эти строчки и включите журналирование в режиме DEBUG. Так мы будем получать сырые данные. Зафиксируйте вес без груза, скопируйте цифры с логов как есть, потом возъмите груз на 500 грамм и поставьте на весы, зафиксируйте цифры. Все эти цифры запишите в линейный фильтр
 
