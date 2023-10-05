@@ -1,0 +1,308 @@
+#Pay attention to entity. Your object names may differ from this example. List your objects
+
+type: vertical-stack
+cards:
+  - square: false
+    columns: 1
+    type: grid
+    cards:
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            entity: binary_sensor.feeder_pettix_s36_bowl
+            tap_action:
+              action: call-service
+              service: button.press
+              target:
+                entity_id: button.feeder_pettix_s36_feed
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+            state:
+              - value: 'on'
+                color: green
+              - value: 'off'
+                color: red
+            icon: mdi:wall-sconce-round-variant
+            name: |
+              [[[
+                if (entity.state == "on")
+                  return "Pour in food";
+                if (entity.state == "off")
+                  return "No bowl";
+              ]]]
+            color: SteelBlue
+            styles:
+              card:
+                - padding: 1%
+                - color: ivory
+                - font-size: 10px
+                - height: 250px
+              grid:
+                - grid-template-areas: '"i icon" "n icon" "n weight_food" "n day" "n status" '
+                - grid-template-columns: lfr lf
+                - grid-template-rows: lfr min-content min-content
+              name:
+                - font-size: 25px
+                - color: BurlyWood
+                - font-weight: bold
+                - padding-bottom: 180px
+                - justify-self: center
+              img_cell:
+                - justify-content: end
+                - margin: none
+                - margin-top: '-10%'
+                - grid-row: 1 / span 6
+              icon:
+                - width: 300px
+                - height: 160px
+                - margin-top: 2%
+                - top: 65px
+              custom_fields:
+                weight_food:
+                  - justify-self: center
+                  - margin-top: '-20%'
+                  - height: 70px
+                  - width: 150px
+                  - font-size: 16px
+                  - line-height: 20px
+                  - color: BurlyWood
+                day:
+                  - justify-self: center
+                  - margin-top: 5%
+                  - height: 70px
+                  - width: 150px
+                  - font-size: 16px
+                  - line-height: 20px
+                  - color: BurlyWood
+                status:
+                  - justify-self: center
+                  - margin-top: 5%
+                  - height: 80px
+                  - width: 150px
+                  - font-size: 16px
+                  - line-height: 20px
+                  - color: BurlyWood
+            custom_fields:
+              weight_food: |
+                [[[
+                  return `<ha-icon icon="mdi:weight-gram" style="width: 50px; height: 30px; color: SteelBlue;">
+                  </ha-icon><br>Feed weight<br><span>${states['sensor.feeder_pettix_s36_weight_food'].state}</span>g<p>`
+                ]]]
+              day: |
+                [[[
+                  return `<ha-icon icon="mdi:food-drumstick" style="width: 50px; height: 30px; color: SteelBlue;">
+                  </ha-icon><br>Feeding per day<br><span>${states['sensor.feeder_pettix_s36_feeding_per_day'].state}</span><p>`
+                ]]]
+              status: |
+                [[[
+                  if (states['binary_sensor.feeder_pettix_s36_food_level'].state == 'on')
+                  return  `<ha-icon icon="mdi:food-drumstick" style="width: 50px; height: 30px; color: SteelBlue;">
+                  </ha-icon><br>In a container<br><span>there is food</span>`
+                  
+                  return  `<ha-icon icon="mdi:food-drumstick-off" style="width: 50px; height: 30px; color: red;">
+                  </ha-icon><br>In a container<br><span>ran out of food</span>`
+                ]]]
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.feeder_pettix_s36_control_panel_1
+            tap_action:
+              action: toggle
+            icon_color: red
+            name: Feeding
+            secondary_info: none
+            icon: mdi:food-drumstick
+            fill_container: false
+            layout: vertical
+          - type: custom:mushroom-entity-card
+            entity: input_boolean.feeder_pettix_s36_control_panel_2
+            name: Settings
+            tap_action:
+              action: toggle
+            secondary_info: none
+            layout: vertical
+            icon: mdi:menu
+            icon_color: orange
+          - type: custom:mushroom-entity-card
+            name: Info
+            tap_action:
+              action: toggle
+            secondary_info: none
+            layout: vertical
+            entity: input_boolean.feeder_pettix_s36_control_panel_3
+            icon: mdi:information
+            icon_color: yellow
+          - type: custom:mushroom-entity-card
+            tap_action:
+              action: toggle
+            secondary_info: none
+            layout: vertical
+            entity: input_boolean.feeder_pettix_s36_control_panel_4
+            icon: mdi:chart-bar
+            icon_color: teal
+            name: Charts
+      - type: conditional
+        conditions:
+          - entity: input_boolean.feeder_pettix_s36_control_panel_1
+            state: 'on'
+        card:
+          type: entities
+          entities:
+            - entity: button.feeder_pettix_s36_feed
+              name: Feeding by hand
+              secondary_info: last-changed
+            - entity: number.feeder_pettix_s36_feed_portions
+              name: Feed Portions
+            - entity: switch.feeder_pettix_s36_slow_feed
+              name: Slow Feed
+            - entity: switch.feeder_pettix_s36_feed_on_time
+              name: Feed On Time
+            - entity: switch.feeder_pettix_s36_food_control
+              name: Food control
+            - entity: number.feeder_pettix_s36_feed_weight_limit
+              name: Feed Weight Limit
+            - entity: number.feeder_pettix_s36_feeding_time_01
+              name: Feeding Time 01
+            - entity: number.feeder_pettix_s36_feeding_time_02
+              name: Feeding Time 02
+            - entity: number.feeder_pettix_s36_feeding_time_03
+              name: Feeding Time 03
+            - entity: number.feeder_pettix_s36_feeding_time_04
+              name: Feeding Time 04
+            - entity: number.feeder_pettix_s36_feeding_time_05
+              name: Feeding Time 05
+            - entity: number.feeder_pettix_s36_feeding_time_06
+              name: Feeding Time 06
+            - entity: number.feeder_pettix_s36_feeding_time_07
+              name: Feeding Time 07
+            - entity: number.feeder_pettix_s36_feeding_time_08
+              name: Feeding Time 08
+            - entity: number.feeder_pettix_s36_feeding_time_09
+              name: Feeding Time 09
+            - entity: number.feeder_pettix_s36_feeding_time_10
+              name: Feeding Time 10
+            - entity: number.feeder_pettix_s36_feeding_time_11
+              name: Feeding Time 11
+            - entity: number.feeder_pettix_s36_feeding_time_12
+              name: Feeding Time 12
+      - type: conditional
+        conditions:
+          - entity: input_boolean.feeder_pettix_s36_control_panel_2
+            state: 'on'
+        card:
+          type: entities
+          entities:
+            - entity: number.feeder_pettix_s36_voice_times
+              name: Voice Times
+            - entity: switch.feeder_pettix_s36_24_hours
+              name: 24 Hours
+            - entity: sensor.feeder_pettix_s36_bowl_current_position
+              name: Bowl Current Position
+            - entity: sensor.feeder_pettix_s36_weight
+              name: Weight
+            - entity: sensor.feeder_pettix_s36_weight_food
+              name: Weight Food
+            - entity: number.feeder_pettix_s36_set_weight_for_bowl
+              name: Set Weight For Bowl
+            - entity: button.feeder_pettix_s36_remove_weight_bowl
+              name: Remove Weight Bowl
+            - entity: cover.feeder_pettix_s36_bowl_control
+              name: Bowl Control
+            - entity: number.feeder_pettix_s36_feed_position_1
+              name: Feed Position 1
+            - entity: number.feeder_pettix_s36_feed_position_2
+              name: Feed Position 2
+            - entity: number.feeder_pettix_s36_feed_position_3
+              name: Feed Position 3
+            - entity: number.feeder_pettix_s36_feed_position_4
+              name: Feed Position 4
+            - entity: number.feeder_pettix_s36_feed_position_5
+              name: Feed Position 5
+            - entity: number.feeder_pettix_s36_feed_position_6
+              name: Feed Position 6
+            - entity: button.feeder_pettix_s36_rotate_bowl
+              name: Rotate Bowl
+            - entity: number.feeder_pettix_s36_feed_position_7
+              name: Feed Position
+      - type: conditional
+        conditions:
+          - entity: input_boolean.feeder_pettix_s36_control_panel_3
+            state: 'on'
+        card:
+          type: entities
+          entities:
+            - entity: binary_sensor.feeder_pettix_s36_bowl
+              name: Bowl
+            - entity: binary_sensor.feeder_pettix_s36_food
+              name: Food
+            - entity: binary_sensor.feeder_pettix_s36_food_level
+              name: Food Level
+            - entity: sensor.feeder_pettix_s36_weight
+              name: Weight
+            - entity: sensor.feeder_pettix_s36_weight_food
+              name: Weight Food
+            - entity: sensor.feeder_pettix_s36_time
+              name: Time
+            - entity: sensor.feeder_pettix_s36_uptime
+              name: Uptime
+            - entity: sensor.feeder_pettix_s36_ip
+              name: IP
+            - entity: sensor.feeder_pettix_s36_esphome_version
+              name: ESPHome Version
+            - entity: update.feeder_pettix_s36_firmware
+              name: Firmware
+            - entity: button.feeder_pettix_s36_restart
+              name: Restart
+      - type: conditional
+        conditions:
+          - entity: input_boolean.feeder_pettix_s36_control_panel_4
+            state: 'on'
+        card:
+          type: custom:history-explorer-card
+          header: Pettix S36 auto feeder
+          cardName: historycard-36245334
+          lineMode: stepped
+          uiColors:
+            gridlines: '#F5FFFA'
+            labels: '#F5FFFA'
+            buttons: '#0000001f'
+            selector: rgba(255,255,255,255)
+            closeButton: '#0000001f'
+          lineGraphHeight: 300
+          barGraphHeight: 300
+          timelineBarHeight: 24
+          timelineBarSpacing: 30
+          refresh:
+            automatic: true
+            interval: 30
+          graphs:
+            - type: bar
+              options:
+                interval: daily
+              entities:
+                - entity: sensor.feeder_pettix_s36_weight_food
+                  name: Weight Food
+                  scale: 0.5
+                  width: 2
+                  color: '#F4A460'
+                - entity: sensor.feeder_pettix_s36_feeding_per_day
+                  name: Feeding Per Day
+                  scale: 0.5
+                  width: 2
+                  color: '#7FFF00'
+                - entity: binary_sensor.feeder_pettix_s36_food
+                  name: Food
+                  scale: 0.5
+                  width: 2
+                  stateColors:
+                    'on': '#7CFC00'
+                    'off': '#FF4500'
+                - entity: binary_sensor.feeder_pettix_s36_food_level
+                  name: Food_level
+                  scale: 0.5
+                  width: 2
+                  stateColors:
+                    'on': '#48D1CC'
+                    'off': '#FF4500'

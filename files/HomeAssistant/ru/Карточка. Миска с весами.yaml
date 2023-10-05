@@ -1,0 +1,63 @@
+#Обращайте внимание на entity. У вас имена объектов могут отличаться от данного примера. Указывайте свои объекты
+
+type: entities
+entities:
+  - type: custom:fold-entity-row
+    head:
+      entity: sensor.feeder_pettix_s36_status
+      name: Миска
+      icon: mdi:cat
+      secondary_info:
+        attribute: Вес корма
+        name: Корм
+        unit: g
+      type: custom:multiple-entity-row
+      show_state: false
+      state_header: Статус
+      entities:
+        - entity: group.feeder_pettix_s36_info_and_menu
+          name: Меню
+          state_color: true
+          icon: mdi:information-outline
+          styles:
+            height: 60px
+            width: 50px
+        - entity: switch.slow_feed
+          name: Slow Feed
+          type: button
+          state_color: true
+          icon: mdi:speedometer-slow
+          tap_action:
+            action: toggle
+          styles:
+            height: 60px
+            width: 50px
+        - entity: input_boolean.feeder_pettix_s36_pour_the_feed_automatically
+          name: Auto Feed
+          type: button
+          state_color: true
+          icon: mdi:auto-mode
+          tap_action:
+            action: toggle
+          styles:
+            height: 60px
+            width: 50px
+        - entity: number.manual_feed
+          name: Feed
+          type: button
+          state_color: true
+          styles:
+            height: 60px
+            width: 50px
+    entities:
+      - entity: input_button.feeder_pettix_s36_pour_cat_food
+        name: Насыпать кошкам корм
+        secondary_info: last-changed
+      - entity: number.manual_feed
+        name: Насыпать корм
+      - entity: switch.slow_feed
+      - entity: input_boolean.feeder_pettix_s36_pour_the_feed_automatically
+        name: Автокормежка
+      - entity: input_number.feeder_pettix_s36_serving_quantity
+        name: Количество порции
+title: Автокормушка

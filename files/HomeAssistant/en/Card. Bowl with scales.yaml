@@ -1,0 +1,62 @@
+#Pay attention to entity. Your object names may differ from this example. List your objects
+
+type: entities
+entities:
+  - type: custom:fold-entity-row
+    head:
+      entity: sensor.feeder_pettix_s36_status
+      name: Bowl
+      icon: mdi:cat
+      secondary_info:
+        attribute: Feed weight
+        name: Feed
+        unit: g
+      type: custom:multiple-entity-row
+      show_state: false
+      state_header: Status
+      entities:
+        - entity: group.feeder_pettix_s36_info_and_menu
+          name: Menu
+          state_color: true
+          icon: mdi:information-outline
+          styles:
+            height: 60px
+            width: 50px
+        - entity: switch.slow_feed
+          name: Slow Feed
+          type: button
+          state_color: true
+          icon: mdi:speedometer-slow
+          tap_action:
+            action: toggle
+          styles:
+            height: 60px
+            width: 50px
+        - entity: input_boolean.feeder_pettix_s36_pour_the_feed_automatically
+          name: Auto Feed
+          type: button
+          state_color: true
+          icon: mdi:auto-mode
+          tap_action:
+            action: toggle
+          styles:
+            height: 60px
+            width: 50px
+        - entity: number.manual_feed
+          name: Feed
+          type: button
+          state_color: true
+          styles:
+            height: 60px
+            width: 50px
+    entities:
+      - entity: input_button.feeder_pettix_s36_pour_cat_food
+        name: Pour Cat Food
+      - entity: number.manual_feed
+        name: Manual Feed
+      - entity: switch.slow_feed
+      - entity: input_boolean.feeder_pettix_s36_pour_the_feed_automatically
+        name: Autofeeding
+      - entity: input_number.feeder_pettix_s36_serving_quantity
+        name: Serving quantity
+title: Automatic feeder
