@@ -1,0 +1,300 @@
+#####################################################################################
+###################################### Variables ####################################
+substitutions:
+  board_name: Scales for a cat
+  node_name: scales-cat-bowl
+
+#####################################################################################
+################################# Basic configuration ###############################
+esphome:
+  name: ${node_name}
+  comment: WeMos D1 Scales for a cat bowl
+
+#####################################################################################
+###################################### Platform #####################################
+esp8266:
+  board: d1_mini
+  framework:
+    version: recommended
+  #Save the preset settings. The settings are not reset after rebooting
+  restore_from_flash: true
+
+#Reset data to the flash drive to reduce the wear of the flash drive
+preferences:
+  flash_write_interval: 1min
+
+#####################################################################################
+################################ Wi-Fi and access point #############################
+#Wi-Fi credentials to connect the board to your home network
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  fast_connect: off
+  reboot_timeout: 5min
+
+#If there is no WiFi connection, the hotspot will come up
+  ap:
+    ssid: ESP Feeder S36 Tuya
+    password: !secret ap_esp_password
+    ap_timeout: 1 min
+    manual_ip:
+      static_ip: 192.168.4.1
+      gateway: 192.168.4.1
+      subnet: 255.255.255.0
+
+#The mdns component causes a node to announce itself on the local network using the multicast DNS (mDNS) protocol, default for mDNS #disabled: false
+mdns:
+  disabled: false
+
+#The captive portal component in ESPHome is a backup mechanism in case the connection to the configured Wi-Fi fails
+captive_portal:
+
+#Web server
+web_server:
+  port: 80
+
+#Logging
+logger:
+  level: ERROR #DEBUG
+  baud_rate: 0
+
+#Enable Home Assistant API
+#Encryption off
+api:
+
+#Over-the-air update (OTA)
+ota:
+  password: "esphome"
+
+
+#####################################################################################
+################################## Sensor ###########################################
+sensor:
+#Total weight sensor
+  - platform: hx711
+    name: "Weight"
+    icon: mdi:scale
+    id: idWeight
+    dout_pin: D4 #DT
+    clk_pin: D3 #SCK
+    gain: 64
+    update_interval: 1s
+    unit_of_measurement: g
+    accuracy_decimals: 0
+    device_class: weight
+    state_class: measurement
+    entity_category: diagnostic
+    internal: False
+    filters:
+      - calibrate_linear:
+          - -91277 -> 0 #If necessary, these values can be changed to calibrate the scales
+          - -165317 -> 500 #If necessary, these values can be changed to calibrate the scales
+      - median:
+          window_size: 7
+          send_every: 4
+          send_first_at: 3
+      #If the bowl is removed, the feed weight will be 0
+      - lambda: !lambda |-
+          if ( x < (id(idSetWeightBowl).state - 30)) return 0;
+          return x;
+    on_value:
+      then:
+      - if:
+          condition:
+              #If the weight of the bowl is less than the specified weight, then there is no bowl
+              - lambda: 'return id(idWeight).state < 1;'
+          then:
+              #Publish OFF status
+              - binary_sensor.template.publish:
+                  id: idBowl
+                  state: OFF
+              - globals.set:
+                  id: idWeightBowlGlobal
+                  value: '10'
+      - if:
+          condition:
+              #If the weight of the bowl is above the specified weight, then the bowl is in place
+              - lambda: 'return id(idWeight).state > 1;' 
+          then:
+              #Publish ON status
+              - binary_sensor.template.publish:
+                  id: idBowl
+                  state: ON
+
+
+#Sensor for the weight of the food in the bowl
+  - platform: template
+    name: "Weight Food"
+    icon: mdi:weight-gram
+    id: idWeightFood
+    update_interval: 1s
+    unit_of_measurement: g
+    accuracy_decimals: 0
+    device_class: weight
+    state_class: measurement
+    lambda: 'return id(idWeight).state - id(idSetWeightBowl).state;' #Subtract the weight of the bowl to get the weight of the food
+    filters:
+        #If the bowl is removed, the feed weight will be 0
+        - lambda: !lambda |-
+            if (x < 0) return 0;
+            return x;
+    on_value:
+      then:
+      - if:
+          condition:
+              #If the weight of the bowl is below the specified weight, then there is no food in the bowl
+              - lambda: 'return id(idWeightFood).state < 1;'
+          then:
+              #Publish OFF status
+              - binary_sensor.template.publish:
+                  id: idFood
+                  state: OFF
+      - if:
+          condition:
+              #If the weight of the bowl is above the specified weight, then there is food in the bowl
+              - lambda: 'return id(idWeightFood).state > 1;'
+          then:
+              #Publish ON status
+              - binary_sensor.template.publish:
+                  id: idFood
+                  state: ON
+
+#WiFi signal strength sensor
+  - platform: wifi_signal
+    name: "RSSI WiFi"
+    icon: mdi:wifi
+    update_interval: 60s
+
+#Hidden uptime sensor in seconds
+  - platform: uptime
+    name: "Uptime sec"
+    icon: mdi:clock-outline
+    id: uptime_sensor
+    internal: True #Hide - true \show - false
+    update_interval: 60s
+    on_raw_value:
+      then:
+        - text_sensor.template.publish:
+            id: uptime_esp
+            state: !lambda |-
+              int seconds = round(id(uptime_sensor).raw_state);
+              int days = seconds / (24 * 3600);
+              seconds = seconds % (24 * 3600);
+              int hours = seconds / 3600;
+              seconds = seconds % 3600;
+              int minutes = seconds /  60;
+              seconds = seconds % 60;
+              return (
+                (days ? String(days) + "d " : "") +
+                (hours ? String(hours) + "h " : "") +
+                (String(minutes) + "m")
+              ).c_str();
+
+
+#####################################################################################
+################################### Binary sensor ###################################
+binary_sensor:
+#Availability of a bowl
+  - platform: template
+    name: "Bowl"
+    icon: mdi:bowl
+    id: idBowl
+    internal: false #Hide - true \show - false
+    on_state:
+      then:
+      - if:
+          condition:
+              #If the bowl is in place and the total weight is less than or greater than no more than 7 grams, the bowl weight will be zeroed out
+              - lambda: 'return id(idBowl).state == true && id(idWeight).state > id(idSetWeightBowl).state - 7 && id(idWeight).state < id(idSetWeightBowl).state + 7;'
+          then:
+              - delay: 5s
+              - number.set:
+                  id: idSetWeightBowl
+                  value: !lambda |-
+                    return round((id(idWeight).state)+1);
+
+#Availability of food in the bowl
+  - platform: template
+    name: "Food"
+    icon: mdi:bowl
+    id: idFood
+    internal: false #Hide - true \show - false
+
+
+#####################################################################################
+##################################### Text sensor ###################################
+text_sensor:
+#Sensor IP
+  - platform: wifi_info
+    ip_address:
+      name: IP
+      icon: mdi:ip-network
+
+#ESPHome Version
+  - platform: version
+    name: "ESPHome Version"
+    hide_timestamp: true
+
+#Uptime
+  - platform: template
+    name: "Uptime"
+    icon: mdi:clock-start
+    id: uptime_esp
+    entity_category: diagnostic
+
+  - platform: template
+    name: "Time"
+    icon: mdi:clock-digital
+    id: idTime
+    update_interval: 10s
+    lambda: |-
+      auto time_text = id(homeassistant_time).now().strftime("%H:%M:%S / %d-%m-%Y");
+      return { time_text };
+
+#####################################################################################
+####################################### Button ######################################
+button:
+#Reboot
+  - platform: restart
+    name: "Restart"
+    icon: mdi:restart
+
+#Remove the weight of the steel bowl
+  - platform: template
+    name: "Remove Weight Bowl"
+    id: idRemoveWeightBowl
+    icon: mdi:scale-balance
+    on_press:
+      then:
+      - if:
+          condition:
+              #If the bowl is in place and the weight differs from the specified weight of the steel bowl, the bowl weight will be reset to zero and only the feed weight will be displayed
+              - lambda: 'return id(idBowl).state == true and id(idWeight).state != id(idSetWeightBowl).state;'
+          then:
+              - number.set:
+                  id: idSetWeightBowl
+                  value: !lambda |-
+                    return round((id(idWeight).state)+1);
+
+
+#####################################################################################
+###################################### Number #######################################
+number:
+#Set the weight of the bowl to not display the weight, but to display the weight of the food
+  - platform: template
+    name: "Set Weight For Bowl"
+    icon: mdi:bowl
+    id: idSetWeightBowl
+    min_value: 0
+    max_value: 500
+    step: 1
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+
+#####################################################################################
+######################################## Time #######################################
+time:
+  - platform: homeassistant
+    id: homeassistant_time

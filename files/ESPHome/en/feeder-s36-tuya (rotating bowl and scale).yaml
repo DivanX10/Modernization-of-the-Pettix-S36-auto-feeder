@@ -1,0 +1,1138 @@
+#####################################################################################
+###################################### Variables ####################################
+substitutions:
+  board_name: ESP Feeder S36 Tuya
+  node_name: feeder-s36-tuya
+  max_skipped_time: "60" #Minutes during which we will trigger a missed feed
+
+#####################################################################################
+################################# Basic configuration ###############################
+esphome:
+  name: feeder-s36-tuya
+  friendly_name: feeder-s36-tuya
+  comment: WeMos D1 Feeder S36 Tuya
+  on_boot:
+    then:
+      #Count the RTC time once at system startup
+      ds1307.read_time:
+
+#####################################################################################
+###################################### Platform #####################################
+esp8266:
+  board: d1_mini
+  framework:
+    version: recommended
+  #Save the preset settings. The settings are not reset after rebooting
+  restore_from_flash: true
+
+#Reset data to the flash drive to reduce the wear of the flash drive
+preferences:
+  flash_write_interval: 1min
+
+#####################################################################################
+################################ Wi-Fi and access point #############################
+#Wi-Fi credentials to connect the board to your home network
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  fast_connect: off
+  reboot_timeout: 5min
+
+#If there is no WiFi connection, the hotspot will come up
+  ap:
+    ssid: ESP Feeder S36 Tuya
+    password: !secret ap_esp_password
+    ap_timeout: 1 min
+    manual_ip:
+      static_ip: 192.168.4.1
+      gateway: 192.168.4.1
+      subnet: 255.255.255.0
+
+#The mdns component causes a node to announce itself on the local network using the multicast DNS (mDNS) protocol, default for mDNS #disabled: false
+mdns:
+  disabled: false
+
+#The captive portal component in ESPHome is a backup mechanism in case the connection to the configured Wi-Fi fails
+captive_portal:
+
+#Web server
+web_server:
+  port: 80
+
+#Logging
+logger:
+  level: ERROR #DEBUG
+  baud_rate: 0
+
+#Enable Home Assistant API
+#Encryption off
+api:
+
+#Over-the-air update (OTA)
+ota:
+  password: "esphome"
+
+#####################################################################################
+######################################### UART ######################################
+uart:
+  tx_pin: GPIO1
+  rx_pin: GPIO3
+  baud_rate: 9600
+  stop_bits: 1
+  data_bits: 8
+  parity: NONE
+
+#Enable Tuya MCU component
+tuya:
+  time_id: homeassistant_time
+  on_datapoint_update:
+    - sensor_datapoint: 14
+      datapoint_type: bitmask
+      then:
+        lambda: |-
+          std::bitset<4> probes(x);
+          probes.flip();
+          id(idFoodLevel).publish_state(probes.test(0));
+
+#####################################################################################
+############################## Global variables #####################################
+globals:
+#The last feeding is on schedule
+  - id: last_manual_feed_ts
+    type: int
+    restore_value: yes
+    initial_value: '2147483648'
+
+
+#####################################################################################
+############################## Output platform ######################################
+#Stepper motor 28BYJ-48
+stepper:
+  - platform: uln2003
+    id: idStepperMotor
+    pin_a: D5
+    pin_b: D6
+    pin_c: D7
+    pin_d: D8
+    max_speed: 250 steps/s
+    sleep_when_done: True
+    step_mode: FULL_STEP
+
+    #Optional:
+    acceleration: inf
+    deceleration: inf
+
+#DS1307 based real time clock (RTS) module
+i2c:
+  sda: D1
+  scl: D2
+  scan: true
+  id: ds1307_time
+
+#####################################################################################
+##################################### Switch ########################################
+switch:
+#Slow feed delivery
+  - platform: template
+    name: "Slow Feed"
+    icon: mdi:speedometer-slow
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+    turn_on_action:
+      - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x05, 0x06, 0x01, 0x00, 0x01, 0x01, 0x13]
+    turn_off_action:
+      - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x05, 0x06, 0x01, 0x00, 0x01, 0x00, 0x12]
+
+#Clock display 12/24 hour time format
+  - platform: template
+    name: "24 Hours"
+    icon: mdi:hours-24
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    turn_on_action:
+      - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x05, 0x66, 0x01, 0x00, 0x01, 0x01, 0x73]
+    turn_off_action:
+      - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x05, 0x66, 0x01, 0x00, 0x01, 0x00, 0x72]
+
+#Scheduled feeding
+  - platform: template
+    name: "Feed On Time"
+    id: idFeedOnTime
+    icon: mdi:clock-time-five-outline
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+
+#Control of excess feed
+  - platform: template
+    name: "Food Control"
+    id: idFoodControl
+    icon: mdi:food-drumstick
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+
+
+#####################################################################################
+################################## Sensor ###########################################
+sensor:
+#Total weight sensor
+  - platform: hx711
+    name: "Weight"
+    icon: mdi:scale
+    id: idWeight
+    dout_pin: D4 #DT
+    clk_pin: D3 #SCK
+    gain: 64
+    update_interval: 1s
+    unit_of_measurement: g
+    accuracy_decimals: 0
+    device_class: weight
+    state_class: measurement
+    entity_category: diagnostic
+    internal: False
+    filters:
+      - calibrate_linear:
+          - -91277 -> 0 #If necessary, these values can be changed to calibrate the scales
+          - -165317 -> 500 #If necessary, these values can be changed to calibrate the scales
+      - median:
+          window_size: 7
+          send_every: 4
+          send_first_at: 3
+      #If the bowl is removed, the feed weight will be 0
+      - lambda: !lambda |-
+          if ( x < (id(idSetWeightBowl).state - 30)) return 0;
+          return x;
+    on_value:
+      then:
+      - if:
+          condition:
+              #If the weight of the bowl is less than the specified weight, then there is no bowl
+              - lambda: 'return id(idWeight).state < 1;'
+          then:
+              #Publish OFF status
+              - binary_sensor.template.publish:
+                  id: idBowl
+                  state: OFF
+      - if:
+          condition:
+              #If the weight of the bowl is above the specified weight, then the bowl is in place
+              - lambda: 'return id(idWeight).state > 1;' 
+          then:
+              #Publish ON status
+              - binary_sensor.template.publish:
+                  id: idBowl
+                  state: ON
+
+
+#Sensor for the weight of the food in the bowl
+  - platform: template
+    name: "Weight Food"
+    icon: mdi:weight-gram
+    id: idWeightFood
+    update_interval: 1s
+    unit_of_measurement: g
+    accuracy_decimals: 0
+    device_class: weight
+    state_class: measurement
+    lambda: 'return id(idWeight).state - id(idSetWeightBowl).state;' #Subtract the weight of the bowl to get the weight of the food
+    filters:
+        #If the bowl is removed, the feed weight will be 0
+        - lambda: !lambda |-
+            if (x < 0) return 0;
+            return x;
+    on_value:
+      then:
+      - if:
+          condition:
+              #If the weight of the bowl is below the specified weight, then there is no food in the bowl
+              - lambda: 'return id(idWeightFood).state < 1;'
+          then:
+              #Publish OFF status
+              - binary_sensor.template.publish:
+                  id: idFood
+                  state: OFF
+      - if:
+          condition:
+              #If the weight of the bowl is above the specified weight, then there is food in the bowl
+              - lambda: 'return id(idWeightFood).state > 1;'
+          then:
+              #Publish ON status
+              - binary_sensor.template.publish:
+                  id: idFood
+                  state: ON
+
+#WiFi signal strength sensor
+  - platform: wifi_signal
+    name: "RSSI WiFi"
+    icon: mdi:wifi
+    update_interval: 60s
+
+#Hidden uptime sensor in seconds
+  - platform: uptime
+    name: "Uptime sec"
+    icon: mdi:clock-outline
+    id: uptime_sensor
+    internal: True #Hide - true \show - false
+    update_interval: 60s
+    on_raw_value:
+      then:
+        - text_sensor.template.publish:
+            id: uptime_esp
+            state: !lambda |-
+              int seconds = round(id(uptime_sensor).raw_state);
+              int days = seconds / (24 * 3600);
+              seconds = seconds % (24 * 3600);
+              int hours = seconds / 3600;
+              seconds = seconds % 3600;
+              int minutes = seconds /  60;
+              seconds = seconds % 60;
+              return (
+                (days ? String(days) + "d " : "") +
+                (hours ? String(hours) + "h " : "") +
+                (String(minutes) + "m")
+              ).c_str();
+
+
+  - platform: template
+    name: "Bowl Current Position"
+    icon: mdi:bowl
+    id: idBowlCurrentPosition
+    update_interval: 1s
+    lambda: 'return id(idStepperMotor).current_position;'
+
+  - platform: template
+    name: "Feeding Per Day"
+    icon: mdi:bowl
+    id: idFeedingPerDaySensor
+    update_interval: 1s
+    lambda: 'return id(idFeedingPerDay).state;'
+
+
+#####################################################################################
+################################### Binary sensor ###################################
+binary_sensor:
+#Availability of a bowl
+  - platform: template
+    name: "Bowl"
+    icon: mdi:bowl
+    id: idBowl
+    internal: false #Hide - true \show - false
+    on_state:
+      then:
+      - if:
+          condition:
+              #If the bowl is in place and the total weight is less than or greater than no more than 7 grams, the bowl weight will be zeroed out
+              - lambda: 'return id(idBowl).state == true && id(idWeight).state > id(idSetWeightBowl).state - 7 && id(idWeight).state < id(idSetWeightBowl).state + 7;'
+          then:
+              - delay: 5s
+              - number.set:
+                  id: idSetWeightBowl
+                  value: !lambda |-
+                    return round((id(idWeight).state)+1);
+
+#Availability of food in the bowl
+  - platform: template
+    name: "Food"
+    icon: mdi:bowl
+    id: idFood
+    internal: false #Hide - true \show - false
+
+#Availability of feed in the tank
+  - platform: template
+    name: "Food level"
+    icon: mdi:food-drumstick
+    id: idFoodLevel
+    internal: false #Hide - true \show - false
+
+
+#####################################################################################
+##################################### Text sensor ###################################
+text_sensor:
+#Sensor IP
+  - platform: wifi_info
+    ip_address:
+      name: IP
+      icon: mdi:ip-network
+
+#ESPHome Version
+  - platform: version
+    name: "ESPHome Version"
+    hide_timestamp: true
+
+#Uptime
+  - platform: template
+    name: "Uptime"
+    icon: mdi:clock-start
+    id: uptime_esp
+    entity_category: diagnostic
+
+  - platform: template
+    name: "Time"
+    icon: mdi:clock-digital
+    id: idTime
+    update_interval: 10s
+    lambda: |-
+      auto time_text = id(homeassistant_time).now().strftime("%H:%M:%S / %d-%m-%Y");
+      return { time_text };
+
+#####################################################################################
+####################################### Button ######################################
+button:
+#Reboot
+  - platform: restart
+    name: "Restart"
+    icon: mdi:restart
+
+#Remove the weight of the steel bowl
+  - platform: template
+    name: "Remove Weight Bowl"
+    id: idRemoveWeightBowl
+    icon: mdi:scale-balance
+    on_press:
+      then:
+      - if:
+          condition:
+              #If the bowl is in place and the weight differs from the specified weight of the steel bowl, the bowl weight will be reset to zero and only the feed weight will be displayed
+              - lambda: 'return id(idBowl).state == true and id(idWeight).state != id(idSetWeightBowl).state;'
+          then:
+              - number.set:
+                  id: idSetWeightBowl
+                  value: !lambda |-
+                    return round((id(idWeight).state)+1);
+
+#Turning the bowl around
+  - platform: template
+    name: "Rotate Bowl"
+    id: idRotateBowl
+    icon: mdi:cached
+    on_press:
+      - stepper.set_target:
+          id: idStepperMotor
+          target: !lambda |-
+            if (id(idBowlCurrentPosition).state >= 0) {
+              return -10; 
+            } else {
+              return id(idFeedPosition7).state;
+            }
+
+#Feed button. Dispenses as much feed as will be set in the feed amount slider.
+# - uart.write: If the bowl is in place, if the excess feed control is on and the feed weight is above the limit, the feed will not be poured, if the excess feed control is off, the feed will be poured
+# - stepper.set_target: If the bowl is in place, if the excess feed control is on and the feed weight is above the limit, the bowl will not rotate, and if the excess feed control is off, the bowl will rotate
+# - number.set: A counter for the number of feedings per day. It is reset once a day at 00:01.
+  - platform: template
+    name: "Feed"
+    id: idFeed
+    icon: mdi:food-drumstick
+    on_press:
+      - if:
+          condition:
+              #If the bowl is in place, the food will be poured in
+              - lambda: 'return id(idBowl).state == true;'
+          then:
+#If serving quantity 1 is specified
+            - if:
+                condition:
+                    - lambda: 'return id(idFeedPortions).state == 1;'
+                then:
+                  #If the bowl is in place, if the excess feed control is on and the feed weight is above the limit, the feed will not be poured, if the excess feed control is off, the feed will be poured
+                    - uart.write: !lambda |-
+                        if (id(idFoodControl).state == true && id(idWeightFood).state < id(idFeedWeightLimit).state)  { 
+                            return {0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x17};
+                        } else if (id(idFoodControl).state == false)  {
+                            return {0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x17};
+                        } else {
+                            // If none of the conditions are met, return the default value
+                            return {0x00}; // Or any other default value
+                        }
+                  #If the bowl is in place, if the excess feed control is on and the feed weight is above the limit, the bowl will not rotate, and if the excess feed control is off, the bowl will rotate
+                    - stepper.set_target:
+                        id: idStepperMotor
+                        target: !lambda |-
+                          if (id(idFoodControl).state == true && id(idWeightFood).state < id(idFeedWeightLimit).state)  { 
+                            if (id(idBowlCurrentPosition).state >= 0 )
+                              return -id(idFeedPosition1).state;
+                            return id(idFeedPosition1).state;
+                          } else if (id(idFoodControl).state == false)  {
+                            if (id(idBowlCurrentPosition).state >= 0 )
+                              return -id(idFeedPosition1).state;
+                            return id(idFeedPosition1).state;
+                          } else {
+                              // If none of the conditions are met, return the default value
+                              return 0; // Or any other default value
+                          }
+                    #Counter for the number of feedings per day. It is reset once a day at 00:01.
+                    #If the conditions are correct, the counter will work
+                    - number.set:
+                        id: idFeedingPerDay
+                        value: !lambda |-
+                          if (id(idFoodControl).state == true && id(idWeightFood).state < id(idFeedWeightLimit).state)  { 
+                            return ((id(idFeedingPerDay).state)+1);
+                          } else if (id(idFoodControl).state == false) {
+                            return ((id(idFeedingPerDay).state)+1);
+                          } else {
+                              // If none of the conditions are met, return the default value
+                              return ((id(idFeedingPerDay).state)); // Or any other default value
+                          }
+
+#If serving size 2 is specified
+            - if:
+                condition:
+                    - lambda: 'return id(idFeedPortions).state == 2;'
+                then:
+                    #If the bowl is in place, if the excess feed control is on and the feed weight is above the limit, the feed will not be poured, if the excess feed control is off, the feed will be poured
+                    - uart.write: !lambda |-
+                        if (id(idFoodControl).state == true && id(idWeightFood).state < id(idFeedWeightLimit).state)  { 
+                            return {0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x02, 0x18};
+                        } else if (id(idFoodControl).state == false)  {
+                            return {0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x02, 0x18};
+                        } else {
+                            // If none of the conditions are met, return the default value
+                            return {0x00}; // Or any other default value
+                        }
+                    #If the bowl is in place, if the excess feed control is on and the feed weight is above the limit, the bowl will not rotate, and if the excess feed control is off, the bowl will rotate
+                    - stepper.set_target:
+                        id: idStepperMotor
+                        target: !lambda |-
+                          if (id(idFoodControl).state == true && id(idWeightFood).state < id(idFeedWeightLimit).state)  { 
+                            if (id(idBowlCurrentPosition).state >= 0 )
+                              return -id(idFeedPosition2).state;
+                            return id(idFeedPosition2).state;
+                          } else if (id(idFoodControl).state == false)  {
+                            if (id(idBowlCurrentPosition).state >= 0 )
+                              return -id(idFeedPosition2).state;
+                            return id(idFeedPosition2).state;
+                          } else {
+                              // If none of the conditions are met, return the default value
+                              return 0; // Or any other default value
+                          }
+                    #Counter for the number of feedings per day. It is reset once a day at 00:01.
+                    #If the conditions are correct, the counter will work
+                    - number.set:
+                        id: idFeedingPerDay
+                        value: !lambda |-
+                          if (id(idFoodControl).state == true && id(idWeightFood).state < id(idFeedWeightLimit).state)  { 
+                            return ((id(idFeedingPerDay).state)+1);
+                          } else if (id(idFoodControl).state == false) {
+                            return ((id(idFeedingPerDay).state)+1);
+                          } else {
+                              // If none of the conditions are met, return the default value
+                              return ((id(idFeedingPerDay).state)); // Or any other default value
+                          }
+
+#If serving quantity 3 is specified
+            - if:
+                condition:
+                    - lambda: 'return id(idFeedPortions).state == 3;'
+                then:
+                    #If the bowl is in place, if the excess feed control is on and the feed weight is above the limit, the feed will not be poured, if the excess feed control is off, the feed will be poured
+                    - uart.write: !lambda |-
+                        if (id(idFoodControl).state == true && id(idWeightFood).state < id(idFeedWeightLimit).state)  { 
+                          return {0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x03, 0x19};
+                        } else if (id(idFoodControl).state == false)  {
+                          return {0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x03, 0x19};
+                        } else {
+                            // If none of the conditions are met, return the default value
+                            return {0x00}; // Or any other default value
+                        }
+                    #If the bowl is in place, if the excess feed control is on and the feed weight is above the limit, the bowl will not rotate, and if the excess feed control is off, the bowl will rotate
+                    - stepper.set_target:
+                        id: idStepperMotor
+                        target: !lambda |-
+                          if (id(idFoodControl).state == true && id(idWeightFood).state < id(idFeedWeightLimit).state)  { 
+                            if (id(idBowlCurrentPosition).state >= 0 )
+                              return -id(idFeedPosition3).state;
+                            return id(idFeedPosition3).state;
+                          } else if (id(idFoodControl).state == false)  {
+                            if (id(idBowlCurrentPosition).state >= 0 )
+                              return -id(idFeedPosition3).state;
+                            return id(idFeedPosition3).state;
+                          } else {
+                              // If none of the conditions are met, return the default value
+                              return 0; // Or any other default value
+                          }
+                    #Counter for the number of feedings per day. It is reset once a day at 00:01.
+                    #If the conditions are correct, the counter will work
+                    - number.set:
+                        id: idFeedingPerDay
+                        value: !lambda |-
+                          if (id(idFoodControl).state == true && id(idWeightFood).state < id(idFeedWeightLimit).state)  { 
+                            return ((id(idFeedingPerDay).state)+1);
+                          } else if (id(idFoodControl).state == false) {
+                            return ((id(idFeedingPerDay).state)+1);
+                          } else {
+                              // If none of the conditions are met, return the default value
+                              return ((id(idFeedingPerDay).state)); // Or any other default value
+                          }
+
+#If serving size 4 is specified
+            - if:
+                condition:
+                    - lambda: 'return id(idFeedPortions).state == 4;'
+                then:
+                    #If the bowl is in place, if the excess feed control is on and the feed weight is above the limit, the feed will not be poured, if the excess feed control is off, the feed will be poured
+                    - uart.write: !lambda |-
+                        if (id(idFoodControl).state == true && id(idWeightFood).state < id(idFeedWeightLimit).state)  { 
+                            return {0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x1A};
+                        } else if (id(idFoodControl).state == false)  {
+                            return {0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x1A};
+                        } else {
+                            // If none of the conditions are met, return the default value
+                            return {0x00}; // Or any other default value
+                        }
+                    #If the bowl is in place, if the excess feed control is on and the feed weight is above the limit, the bowl will not rotate, and if the excess feed control is off, the bowl will rotate
+                    - stepper.set_target:
+                        id: idStepperMotor
+                        target: !lambda |-
+                          if (id(idFoodControl).state == true && id(idWeightFood).state < id(idFeedWeightLimit).state)  { 
+                            if (id(idBowlCurrentPosition).state >= 0 )
+                              return -id(idFeedPosition4).state;
+                            return id(idFeedPosition4).state;
+                          } else if (id(idFoodControl).state == false)  {
+                            if (id(idBowlCurrentPosition).state >= 0 )
+                              return -id(idFeedPosition4).state;
+                            return id(idFeedPosition4).state;
+                          } else {
+                              // If none of the conditions are met, return the default value
+                              return 0; // Or any other default value
+                          }
+                    #Counter for the number of feedings per day. It is reset once a day at 00:01.
+                    #If the conditions are correct, the counter will work
+                    - number.set:
+                        id: idFeedingPerDay
+                        value: !lambda |-
+                          if (id(idFoodControl).state == true && id(idWeightFood).state < id(idFeedWeightLimit).state)  { 
+                            return ((id(idFeedingPerDay).state)+1);
+                          } else if (id(idFoodControl).state == false) {
+                            return ((id(idFeedingPerDay).state)+1);
+                          } else {
+                              // If none of the conditions are met, return the default value
+                              return ((id(idFeedingPerDay).state)); // Or any other default value
+                          }
+
+#If a serving amount of 5 is specified
+            - if:
+                condition:
+                    - lambda: 'return id(idFeedPortions).state == 5;'
+                then:
+                    #If the bowl is in place, if the excess feed control is on and the feed weight is above the limit, the feed will not be poured, if the excess feed control is off, the feed will be poured
+                    - uart.write: !lambda |-
+                        if (id(idFoodControl).state == true && id(idWeightFood).state < id(idFeedWeightLimit).state)  { 
+                            return {0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x05, 0x1B};
+                        } else if (id(idFoodControl).state == false)  {
+                            return {0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x05, 0x1B};
+                        } else {
+                            // If none of the conditions are met, return the default value
+                            return {0x00}; // Or any other default value
+                        }
+                    #If the bowl is in place, if the excess feed control is on and the feed weight is above the limit, the bowl will not rotate, and if the excess feed control is off, the bowl will rotate
+                    - stepper.set_target:
+                        id: idStepperMotor
+                        target: !lambda |-
+                          if (id(idFoodControl).state == true && id(idWeightFood).state < id(idFeedWeightLimit).state)  { 
+                            if (id(idBowlCurrentPosition).state >= 0 )
+                              return -id(idFeedPosition5).state;
+                            return id(idFeedPosition5).state;
+                          } else if (id(idFoodControl).state == false)  {
+                            if (id(idBowlCurrentPosition).state >= 0 )
+                              return -id(idFeedPosition5).state;
+                            return id(idFeedPosition5).state;
+                          } else {
+                              // If none of the conditions are met, return the default value
+                              return 0; // Or any other default value
+                          }
+                    #Counter for the number of feedings per day. It is reset once a day at 00:01.
+                    #If the conditions are correct, the counter will work
+                    - number.set:
+                        id: idFeedingPerDay
+                        value: !lambda |-
+                          if (id(idFoodControl).state == true && id(idWeightFood).state < id(idFeedWeightLimit).state)  { 
+                            return ((id(idFeedingPerDay).state)+1);
+                          } else if (id(idFoodControl).state == false) {
+                            return ((id(idFeedingPerDay).state)+1);
+                          } else {
+                              // If none of the conditions are met, return the default value
+                              return ((id(idFeedingPerDay).state)); // Or any other default value
+                          }
+
+#If serving size 6 is specified
+            - if:
+                condition:
+                    - lambda: 'return id(idFeedPortions).state == 6;'
+                then:
+                    #If the bowl is in place, if the excess feed control is on and the feed weight is above the limit, the feed will not be poured, if the excess feed control is off, the feed will be poured
+                    - uart.write: !lambda |-
+                        if (id(idFoodControl).state == true && id(idWeightFood).state < id(idFeedWeightLimit).state)  { 
+                            return {0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x06, 0x1C};
+                        } else if (id(idFoodControl).state == false)  {
+                            return {0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x03, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x06, 0x1C};
+                        } else {
+                            // If none of the conditions are met, return the default value
+                            return {0x00}; // Or any other default value
+                        }
+                    #If the bowl is in place, if the excess feed control is on and the feed weight is above the limit, the bowl will not rotate, and if the excess feed control is off, the bowl will rotate
+                    - stepper.set_target:
+                        id: idStepperMotor
+                        target: !lambda |-
+                          if (id(idFoodControl).state == true && id(idWeightFood).state < id(idFeedWeightLimit).state)  { 
+                            if (id(idBowlCurrentPosition).state >= 0 )
+                              return -id(idFeedPosition6).state;
+                            return id(idFeedPosition6).state;
+                          } else if (id(idFoodControl).state == false)  {
+                            if (id(idBowlCurrentPosition).state >= 0 )
+                              return -id(idFeedPosition6).state;
+                            return id(idFeedPosition6).state;
+                          } else {
+                              // If none of the conditions are met, return the default value
+                              return 0; // Or any other default value
+                          }
+                    #Counter for the number of feedings per day. It is reset once a day at 00:01.
+                    #If the conditions are correct, the counter will work
+                    - number.set:
+                        id: idFeedingPerDay
+                        value: !lambda |-
+                          if (id(idFoodControl).state == true && id(idWeightFood).state < id(idFeedWeightLimit).state)  { 
+                            return ((id(idFeedingPerDay).state)+1);
+                          } else if (id(idFoodControl).state == false) {
+                            return ((id(idFeedingPerDay).state)+1);
+                          } else {
+                              // If none of the conditions are met, return the default value
+                              return ((id(idFeedingPerDay).state)); // Or any other default value
+                          }
+
+#####################################################################################
+###################################### Number #######################################
+number:
+#Set the weight of the bowl to not display the weight, but to display the weight of the food
+  - platform: template
+    name: "Set Weight For Bowl"
+    icon: mdi:bowl
+    id: idSetWeightBowl
+    min_value: 0
+    max_value: 500
+    step: 1
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+
+#Set the amount of feed to be fed
+  - platform: template
+    name: "Feed Portions"
+    icon: mdi:wall-sconce-round-variant
+    id: idFeedPortions
+    min_value: 1
+    max_value: 6
+    step: 1
+    mode: slider #slider/box
+    optimistic: true
+    restore_value: true
+
+#Voice playback time
+  - platform: template
+    name: "Voice Times"
+    icon: mdi:account-voice
+    id: idVoiceTimes
+    min_value: 1
+    max_value: 6
+    step: 1
+    mode: slider #slider/box
+    optimistic: true
+    restore_value: true
+    on_value:
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 0;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x25]
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 1;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x26]
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 2;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x02, 0x27]
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 3;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x03, 0x28]
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 4;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x29]
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 5;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x05, 0x2A]
+      - if:
+          condition:
+              - lambda: 'return id(idVoiceTimes).state == 6;'
+          then:
+               - uart.write: [0x55, 0xAA, 0x00, 0x06, 0x00, 0x08, 0x12, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x06, 0x2B]
+
+
+#Bowl position
+  - platform: template
+    name: "Feed Position 1"
+    icon: mdi:circle-slice-1
+    id: idFeedPosition1
+    min_value: -10000
+    max_value: 10000
+    step: 10
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Feed Position 2"
+    icon: mdi:circle-slice-2
+    id: idFeedPosition2
+    min_value: -10000
+    max_value: 10000
+    step: 10
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Feed Position 3"
+    icon: mdi:circle-slice-3
+    id: idFeedPosition3
+    min_value: -10000
+    max_value: 10000
+    step: 10
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Feed Position 4"
+    icon: mdi:circle-slice-4
+    id: idFeedPosition4
+    min_value: -10000
+    max_value: 10000
+    step: 10
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Feed Position 5"
+    icon: mdi:circle-slice-5
+    id: idFeedPosition5
+    min_value: -10000
+    max_value: 10000
+    step: 10
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Feed Position 6"
+    icon: mdi:circle-slice-6
+    id: idFeedPosition6
+    min_value: -10000
+    max_value: 10000
+    step: 10
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Feed Position 7"
+    icon: mdi:circle-slice-7
+    id: idFeedPosition7
+    min_value: -10000
+    max_value: 10000
+    step: 10
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+
+#Feeding plan. Specify feeding time, if no feeding is needed, specify 0
+  - platform: template
+    name: "Feeding Time 01"
+    icon: mdi:clock-start
+    id: idFeedingTime1
+    min_value: 0
+    max_value: 2359
+    step: 1
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Feeding Time 02"
+    icon: mdi:clock-start
+    id: idFeedingTime2
+    min_value: 0
+    max_value: 2359
+    step: 1
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Feeding Time 03"
+    icon: mdi:clock-start
+    id: idFeedingTime3
+    min_value: 0
+    max_value: 2359
+    step: 1
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Feeding Time 04"
+    icon: mdi:clock-start
+    id: idFeedingTime4
+    min_value: 0
+    max_value: 2359
+    step: 1
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Feeding Time 05"
+    icon: mdi:clock-start
+    id: idFeedingTime5
+    min_value: 0
+    max_value: 2359
+    step: 1
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Feeding Time 06"
+    icon: mdi:clock-start
+    id: idFeedingTime6
+    min_value: 0
+    max_value: 2359
+    step: 1
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Feeding Time 07"
+    icon: mdi:clock-start
+    id: idFeedingTime7
+    min_value: 0
+    max_value: 2359
+    step: 1
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Feeding Time 08"
+    icon: mdi:clock-start
+    id: idFeedingTime8
+    min_value: 0
+    max_value: 2359
+    step: 1
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Feeding Time 09"
+    icon: mdi:clock-start
+    id: idFeedingTime9
+    min_value: 0
+    max_value: 2359
+    step: 1
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Feeding Time 10"
+    icon: mdi:clock-start
+    id: idFeedingTime10
+    min_value: 0
+    max_value: 2359
+    step: 1
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Feeding Time 11"
+    icon: mdi:clock-start
+    id: idFeedingTime11
+    min_value: 0
+    max_value: 2359
+    step: 1
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Feeding Time 12"
+    icon: mdi:clock-start
+    id: idFeedingTime12
+    min_value: 0
+    max_value: 2359
+    step: 1
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+#Excess feed weight
+  - platform: template
+    name: "Feed Weight Limit"
+    icon: mdi:weight-gram
+    id: idFeedWeightLimit
+    min_value: 0
+    max_value: 100
+    step: 1
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+#Number of feedings per day. Hidden element
+  - platform: template
+    name: "Feeding Per Day"
+    icon: mdi:food-drumstick
+    id: idFeedingPerDay
+    min_value: 0
+    max_value: 100
+    step: 1
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+    internal: true #Hide - true \show - false
+
+#Feed counter reset time per day
+  - platform: template
+    name: "Reset the feeding counter per day"
+    icon: mdi:food-drumstick
+    id: idResetFeedingCounterPerDay
+    min_value: 0
+    max_value: 2359
+    step: 1
+    mode: box #slider/box
+    optimistic: true
+    restore_value: true
+
+
+#####################################################################################
+####################################### Cover #######################################
+cover:
+  - platform: template
+    name: "Bowl Control"
+    icon: mdi:cached
+    id: idBowlControl
+    optimistic: true
+    open_action:
+      - stepper.set_target:
+          id: idStepperMotor
+          target: 10000
+    close_action:
+      - stepper.set_target:
+          id: idStepperMotor
+          target: -10000
+    stop_action:
+      - stepper.set_target:
+          id: idStepperMotor
+          target: !lambda return id(idStepperMotor).current_position;
+      
+
+#####################################################################################
+######################################## Time #######################################
+#The real time clock (RTS) module based on the DS1307 chip is used as the time
+time:
+  - platform: ds1307
+    #No re-synchronization is required unless external RTC. Much more accurate than the internal clock
+    update_interval: never
+  - platform: homeassistant
+    id: homeassistant_time
+  - platform: sntp
+    id: sntp_time
+    timezone: Europe/Moscow
+    #Instead, try synchronizing over the network a few times....
+    on_time_sync:
+      then:
+        # ... and update the RTC when synchronization is successful
+        - ds1307.write_time:
+        - logger.log: "Synchronized system clock"
+    on_time:
+      - seconds: 0
+        then:
+          - lambda: |-
+              //Exit without doing anything if wifi is not connected
+              if (!id(idWiFi).is_connected()) {
+                ESP_LOGD("on_time", "Wifi not connected! Do nothing.");
+                return;
+              }
+              //Exit without doing anything if the clock is off (not valid)
+              auto current_time = id(homeassistant_time).now();
+              if (!current_time.is_valid()) {
+                ESP_LOGD("on_time", "Invalid time! Do nothing.");
+                return;
+              }
+              //Going out without doing anything if the scheduled feeding is not on
+              if (!id(idFeedOnTime).state) {
+                ESP_LOGD("on_time", "FeedOnTime if Off! Do nothing.");
+                return;
+              }
+ 
+              //Get the hours and minutes of the current time
+              int current_hours = current_time.hour;
+              int current_minutes = current_time.minute;
+              ESP_LOGD("on_time", "Current time: %02d:%02d", current_hours, current_minutes);
+              
+              //Reset the meter every day at 00:00.
+              if (current_hours * 100 + current_minutes == 0) { id(idFeedingPerDay).publish_state(0); }
+
+              //We loop through all the schedules
+              template_::TemplateNumber *feeding_times[] = {
+                id(idFeedingTime1),
+                id(idFeedingTime2),
+                id(idFeedingTime3),
+                id(idFeedingTime4),
+                id(idFeedingTime5),
+                id(idFeedingTime6),
+                id(idFeedingTime7),
+                id(idFeedingTime8),
+                id(idFeedingTime9),
+                id(idFeedingTime10),
+                id(idFeedingTime11),
+                id(idFeedingTime12)
+                };
+              for (int i = 0; i < sizeof(feeding_times) / sizeof(*feeding_times); i++) {
+                //Skip schedules with value "0"
+                if (feeding_times[i]->state == 0) continue;
+ 
+                //We get hours, minutes of feeding time on a schedule
+                int feeding_hours = (int) (feeding_times[i]->state) / 100;
+                int feeding_minutes = (int) (feeding_times[i]->state) % 100;
+
+                //Calculate the difference in minutes between the current time and the schedule
+                int diff_time = ((feeding_hours > current_hours ? current_hours + 24 : current_hours) * 60 + current_minutes) - (feeding_hours * 60 + feeding_minutes);
+ 
+                //If the difference is zero (diff_time is equal to 0) - it means that the time of scheduled feeding has arrived
+                //If the difference is greater than 0 and less than max_skipped_time constant - check if it is necessary to start delayed feeding (the difference between current time and global last_manual_feed_ts must be at least "max_skipped_time" minutes).
+                if (diff_time == 0 or (diff_time > 0 and diff_time < ${max_skipped_time} and (current_time.timestamp - id(last_manual_feed_ts)) / 60 > ${max_skipped_time})) {
+                  ESP_LOGI("on_time", "%s time to turn on with '%s'", diff_time == 0 ? "Exact" : "Skipped", feeding_times[i]->get_name().c_str());
+
+                  //Start feeding
+                  id(idFeed).press();
+
+                  //Memorize the time of the last started feeding and interrupt the cycle
+                  id(last_manual_feed_ts) = current_time.timestamp;
+                  break;
+                }
+              }
+
+
+
