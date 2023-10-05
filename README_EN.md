@@ -239,7 +239,8 @@ If the readings are unstable, fluctuate frequently and strongly, then replace th
 <details>
   <summary><b>Home Assistant</b></summary>
 
-![feeder_pettix_s36_control_panel_scales_ru](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/210d583e-eb97-494c-9856-877aa98ce18d)
+![image](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/d403bc48-381f-42cb-9a3f-6272dae82b77)
+
 
 **For the card to work, you need to install components**
 * [Fold Entity Row](https://github.com/thomasloven/lovelace-fold-entity-row)
