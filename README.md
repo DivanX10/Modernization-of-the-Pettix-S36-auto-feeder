@@ -274,14 +274,23 @@ sensor:
   <summary><b>Что нужно для сборки вращающейся миски с весами</b></summary>
   
 * Чувствительные тензодатчики с точностью 1 грамм. Найти можно в электронных кухонных весах с круглыми ножками. Берем любые кухонные весы с круглыми ножками, а не с палками. Это легко можно понять, если перевернуть весы. [Я брал такие кухонные весы](https://ozon.ru/t/zewBN6W)
+
+<img src="https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/b2f3df54-8d77-4d6a-98a2-83872547ea16" width=30%>
+
 * ESP8266 Wemos Mini D1
 * Контроллер весов HX711
 * Модуль драйвера ULN2003 и шаговый двигатель 28YBJ 48
 * Модуль часов реального времени (RTS) DS1307
 * Подшипник 6814 2RS (61814) SLZ. Брал [здесь](https://ozon.ru/t/6M8ZB3Y)
-<img src="https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/ef17c186-4428-45d1-8580-bf0b5b19b3b0" width=40%>
+  * Внешний диаметр: 90 мм
+  * Внутренний диаметр: 70 мм
+  * Высота: 10 мм
+<img src="https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/ef17c186-4428-45d1-8580-bf0b5b19b3b0" width=30%>
 
 * Жидкая резина KUDO COLOR FLEX, Прозрачная. Брал [здесь](https://ozon.ru/t/wz6gR7n)
+  
+<img src="https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/080146eb-a8f7-4a47-86b8-b1077bf3b672" width=30%>
+
 * Распечатать миску и платформу. Скачать можно [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/tree/main/files/STL%20Rotating%20bowl%20with%20scales)
 
 </details>
