@@ -244,7 +244,7 @@ sensor:
 <details>
   <summary><b>Home Assistant</b></summary>
 
-
+![feeder_pettix_s36_control_panel_scales_ru](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/210d583e-eb97-494c-9856-877aa98ce18d)
 
 **Для работы карточки необходимо установить компоненты**
 * [Fold Entity Row](https://github.com/thomasloven/lovelace-fold-entity-row)
