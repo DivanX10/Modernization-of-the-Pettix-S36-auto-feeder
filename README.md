@@ -147,53 +147,11 @@
 </details>
 
 
-
-## Автокормушка с миской на весах
-
-<details>
-  <summary><b>Что нужно для сборки весов для миски</b></summary>
-  
-* Чувствительные тензодатчики с точностью 1 грамм. Найти можно в электронных кухонных весах с круглыми ножками. Берем любые кухонные весы с круглыми ножками, а не с палками. Это легко можно понять, если перевернуть весы. [Я брал такие кухонные весы](https://ozon.ru/t/zewBN6W)
-* ESP8266 Wemos Mini D1
-* Контроллер весов HX711
-* Распечатать платформу. Скачать можно [здесь](https://github.com/DivanX10/cat-bowl-with-scales/tree/main/files/STL%20Scales)
-</details>
-
-<details>
-  <summary><b>Фотографии</b></summary>
-  
-![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/df7389fe-d94a-468a-a0af-940cf160bc81)
-![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/f5922b16-2881-4e63-9c3f-eff8ddc1fa62)
-![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/abe8e139-9b38-483d-9db3-028f81224551)
-![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/9f6fc135-7c15-4b94-b5d5-03907ad124ab)
-
-
-</details>
-
-
-<details>
-  <summary><b>Схема подключения и сборка</b></summary>
-
-
-![Схема подключения весов к контроллеру HX711 и к ESP8266](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/bde19c1b-f528-445c-9f29-a02ab361cd80)
-
-![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/bbecdcee-01e7-4d82-b56b-de997552f5fb)
-![1692211420683](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/fed69521-62d4-44f0-bd97-e9a33ec976a5)
-![1692211420675](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/f258478b-e6c0-4592-86f6-8c3d846ef2f2)
-![1692296894910](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/24c2ed5a-f6fc-49f3-ae14-95871bf6a00d)
-![1692299489836](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/dea4d793-994e-4d57-b99e-a52308ee41eb)
-
-
-
-
-  
-</details>
-
-
 <details>
   <summary><b>ESPHome</b></summary>
 
-### Полный код можно посмотреть [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/blob/main/files/ESPHome/ru/feeder-pettix-s36%20(весы).yaml)
+
+### Конфигурации смотреть [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/tree/main/files/ESPHome/ru)
 ***  
 Перед тем как использовать весь код, откалибруйте свои весы. Уберите из кода эти строчки и включите журналирование в режиме DEBUG. Так мы будем получать сырые данные. Зафиксируйте вес без груза, скопируйте цифры с логов как есть, потом возъмите груз на 500 грамм и поставьте на весы, зафиксируйте цифры. Все эти цифры запишите в линейный фильтр
 
@@ -237,8 +195,49 @@ sensor:
           send_every: 5
           send_first_at: 4
 ```
+                
+</details>
 
 
+## Автокормушка с миской на весах
+
+<details>
+  <summary><b>Что нужно для сборки весов для миски</b></summary>
+  
+* Чувствительные тензодатчики с точностью 1 грамм. Найти можно в электронных кухонных весах с круглыми ножками. Берем любые кухонные весы с круглыми ножками, а не с палками. Это легко можно понять, если перевернуть весы. [Я брал такие кухонные весы](https://ozon.ru/t/zewBN6W)
+* ESP8266 Wemos Mini D1
+* Контроллер весов HX711
+* Распечатать платформу. Скачать можно [здесь](https://github.com/DivanX10/cat-bowl-with-scales/tree/main/files/STL%20Scales)
+</details>
+
+<details>
+  <summary><b>Фотографии</b></summary>
+  
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/df7389fe-d94a-468a-a0af-940cf160bc81)
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/f5922b16-2881-4e63-9c3f-eff8ddc1fa62)
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/abe8e139-9b38-483d-9db3-028f81224551)
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/9f6fc135-7c15-4b94-b5d5-03907ad124ab)
+
+
+</details>
+
+
+<details>
+  <summary><b>Схема подключения и сборка</b></summary>
+
+
+![Схема подключения весов к контроллеру HX711 и к ESP8266](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/bde19c1b-f528-445c-9f29-a02ab361cd80)
+
+![image](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/bbecdcee-01e7-4d82-b56b-de997552f5fb)
+![1692211420683](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/fed69521-62d4-44f0-bd97-e9a33ec976a5)
+![1692211420675](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/f258478b-e6c0-4592-86f6-8c3d846ef2f2)
+![1692296894910](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/24c2ed5a-f6fc-49f3-ae14-95871bf6a00d)
+![1692299489836](https://github.com/DivanX10/cat-bowl-with-scales/assets/64090632/dea4d793-994e-4d57-b99e-a52308ee41eb)
+
+
+
+
+  
 </details>
 
 <details>
@@ -294,56 +293,7 @@ sensor:
 
 </details>
 
-<details>
-  <summary><b>ESPHome</b></summary>
 
-
-### Полный код можно посмотреть [здесь](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/blob/main/files/ESPHome/ru/feeder-pettix-s36%20(вращающаяся%20миска%20и%20весы).yaml)
-***  
-Перед тем как использовать весь код, откалибруйте свои весы. Уберите из кода эти строчки и включите журналирование в режиме DEBUG. Так мы будем получать сырые данные. Зафиксируйте вес без груза, скопируйте цифры с логов как есть, потом возъмите груз на 500 грамм и поставьте на весы, зафиксируйте цифры. Все эти цифры запишите в линейный фильтр
-
-Пример фильтра, где `-169085` это сырое значение и это значение без груза на весах, поэтому я указал что данное значение имеет вес 0 грамм, а значение `-92230` отобразилось в логах после того, как я установил груз весом 500 грамм и после указал, что данное значение имеет вес 500 грамм
-```
-filters:
-  - calibrate_linear:
-      - -169085 -> 0
-      - -92230 -> 500
-```
-
-Так выглядит код с журналированием в режиме отладки и без использования фильтра с линейной калибровкой. Это позволит вам получить сырые значения
-```
-#Журналирование
-logger:
-  level: DEBUG #Режим отладки
-
-sensor:
-  # Весы кошачьей миски
-  - platform: hx711
-    name: "${node_name} Weight"
-    icon: mdi:scale
-    id: idWeight
-    dout_pin: D7 # DT
-    clk_pin: D6  # SCK
-    gain: 64
-    update_interval: 2s
-    unit_of_measurement: g
-    accuracy_decimals: 0
-    device_class: weight
-    state_class: measurement
-    entity_category: diagnostic
-    internal: False
-```
-
-Если показания нестабильны и сильно скачут, то можно использовать дополнительный фильтр, например медиана, что уменьшит частое изменение показании. [Подробнее читаем в документации ESPHome](https://esphome.io/components/sensor/index.html#median)
-
-```
-      - median:
-          window_size: 7
-          send_every: 5
-          send_first_at: 4
-```
-                
-</details>
 
 
 <details>
