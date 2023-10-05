@@ -296,6 +296,22 @@ sensor:
 </details>
 
 <details>
+  <summary><b>Фотографии</b></summary>
+  
+![1696536595687](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/e5091fb4-d05b-433d-994f-a0790e9496eb)
+![1696536595643](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/75efbf59-bb92-4c0e-910c-0f0f82f0b723)
+![1696035017452](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/c7887c34-0a1d-4a8c-a42e-9700d2406eb4)
+![1696536595635](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/739142d2-9f8e-4311-9748-1940fcb5a2c5)
+![1695752533054](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/235adf0a-dac5-4fb2-9a26-18c1388e870a)
+![1695752533058](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/1a2c6325-2bed-4af7-8e3d-39b1822b20b8)
+![1695752533041](https://github.com/DivanX10/Modernization-of-the-Pettix-S36-auto-feeder/assets/64090632/08a2d907-a161-480d-9c9b-c7cdcb255c00)
+
+
+
+
+</details>
+
+<details>
   <summary><b>Cхема подключения</b></summary>
 
 Питание берем от самой автокормушки, которое выдает 5V и 1A, чего будет достаточно, чтобы запитать всю кормушку полностью. Для полной работы кормушки требуется сила тока до 800мА
